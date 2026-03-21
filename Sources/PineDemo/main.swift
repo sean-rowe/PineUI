@@ -1,7 +1,7 @@
 // PineDemo — A Notes app using macOS SwiftUI API names.
 //
-// Demonstrates: sidebar selection, toolbar, tabs, navigation,
-// reactive state, SF Symbol mapping, and the full SwiftUI-like API.
+// Demonstrates: @PineState, sidebar selection, toolbar, tabs, navigation,
+// search, reactive views, SF Symbol mapping, and the full SwiftUI-like API.
 
 import PineUI
 
@@ -18,8 +18,13 @@ let notes = [
     Note(title: "Sourdough Recipe", preview: "500g flour, 350g water, 100g starter.", date: "Mar 15"),
 ]
 
-// Reactive state.
-let noteCount = StateStore<Int>(4)
+// App state — using @PineState inside a struct.
+struct AppState {
+    @PineState var noteCount = 4
+}
+let state = AppState()
+
+// Navigation controller.
 let nav = NavigationController()
 
 struct NotesApp: PineApp {
@@ -49,7 +54,7 @@ struct NotesApp: PineApp {
                 .leading("Sidebar", icon: "sidebar.left") { }
                 .trailing("Search", icon: "magnifyingglass") { }
                 .trailing("New Note", icon: "plus") {
-                    noteCount.value += 1
+                    state.noteCount += 1
                 }
             )
             .sidebar(sidebar)
@@ -84,12 +89,22 @@ func notesTab() -> some View {
         HStack(spacing: 12) {
             Text("All Notes").font(.title)
             Spacer()
-            ReactiveButton(state: noteCount, label: { "\($0) notes" }) {
-                noteCount.value += 1
+            // Using state.$noteCount to access the StateStore via projected value.
+            ReactiveButton(state: state.$noteCount, label: { "\($0) notes" }) {
+                state.noteCount += 1
             }
             .cssClass("suggested-action")
         }
         .padding()
+
+        // Search field with live filtering.
+        HStack(spacing: 0) {
+            SearchField("Search notes...") { query in
+                // In a real app, this would filter the notes list.
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
 
         Divider()
 
@@ -116,7 +131,7 @@ func notesTab() -> some View {
     }
 }
 
-// MARK: - Note detail view (pushed via NavigationStack)
+// MARK: - Note detail view
 
 func noteDetailView() -> some View {
     VStack(alignment: .leading, spacing: 0) {
