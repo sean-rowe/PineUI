@@ -65,6 +65,7 @@ private class ClickHandler {
 
 public enum ButtonStyle {
     case default_, bordered, borderedProminent, plain
+    case glass, glassProminent
 
     var cssClass: String {
         switch self {
@@ -72,6 +73,8 @@ public enum ButtonStyle {
         case .bordered: return "pine-btn-bordered"
         case .borderedProminent: return "suggested-action"
         case .plain: return "flat"
+        case .glass: return "pine-btn-glass"
+        case .glassProminent: return "pine-btn-glass-prominent"
         }
     }
 }

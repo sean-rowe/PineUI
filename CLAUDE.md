@@ -134,6 +134,6 @@ swift test               # Run tests
 
 - No view diffing/reconciliation (rebuilds entire subtree on state change)
 - No `GeometryReader`
-- No Liquid Glass theming (Stream 4)
+- Liquid Glass approximation (no backdrop-filter blur in GTK4 CSS)
 - No `WebView` (would need WebKitGTK dependency)
 - Property wrappers are source-compatible but don't trigger view re-renders (no reconciler)
