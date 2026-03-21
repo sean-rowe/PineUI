@@ -90,18 +90,46 @@ swift test               # Run tests
 ### State Management
 `@PineState`, `StateStore<T>`, `Binding<T>`, `reactive()`
 
-### Modifiers
-`.padding()`, `.frame()`, `.opacity()`, `.background()`, `.cornerRadius()`, `.border()`, `.foregroundColor()`, `.onTapGesture()`, `.hidden()`, `.disabled()`, `.help()`, `.cssClass()`, `.font()`, `.bold()`, `.foregroundStyle()`, `.buttonStyle()`
+### Modifiers (152 total across 12 files)
+
+**Layout (16):** `.overlay`, `.shadow`, `.clipped`, `.clipShape`, `.fixedSize`, `.layoutPriority`, `.zIndex`, `.offset`, `.position`, `.alignmentGuide`, `.safeAreaInset`, `.contentMargins`, `.scenePadding`, `.aspectRatio`, `.mask`, `.containerRelativeFrame`
+
+**Appearance (19):** `.tint`, `.accentColor`, `.preferredColorScheme`, `.blendMode`, `.saturation`, `.brightness`, `.contrast`, `.hueRotation`, `.grayscale`, `.blur`, `.compositingGroup`, `.drawingGroup`, `.glassEffect`, `.backgroundExtensionEffect`, `.rotationEffect`, `.rotation3DEffect`, `.scaleEffect`, `.redacted`
+
+**Text (17):** `.fontWeight`, `.fontDesign`, `.italic`, `.strikethrough`, `.underline`, `.kerning`, `.tracking`, `.baselineOffset`, `.lineLimit`, `.lineSpacing`, `.minimumScaleFactor`, `.truncationMode`, `.textCase`, `.textSelection`, `.allowsTightening`, `.labelIconToTitleSpacing`, `.typesettingLanguage`
+
+**Interaction (20):** `.onLongPressGesture`, `.gesture`, `.highPriorityGesture`, `.simultaneousGesture`, `.allowsHitTesting`, `.contentShape`, `.hoverEffect`, `.onHover`, `.focusable`, `.focused`, `.defaultFocus`, `.prefersDefaultFocus`, `.onKeyPress`, `.onSubmit`, `.swipeActions`, `.selectionDisabled`, `.onDrag`, `.onDrop`, `.draggable`, `.dropDestination`
+
+**Navigation (6):** `.navigationTitle`, `.navigationSubtitle`, `.navigationBarTitleDisplayMode`, `.toolbar`, `.toolbarBackground`, `.toolbarColorScheme`
+
+**Presentation (9):** `.sheet`, `.fullScreenCover`, `.popover`, `.alert`, `.confirmationDialog`, `.fileImporter`, `.fileExporter`, `.inspector`, `.interactiveDismissDisabled`
+
+**Lists (10):** `.listStyle`, `.listRowBackground`, `.listRowSeparator`, `.listRowInsets`, `.listSectionSeparator`, `.searchable`, `.refreshable`, `.badge`, `.privacySensitive`
+
+**Scrolling (6):** `.scrollIndicators`, `.scrollDisabled`, `.scrollDismissesKeyboard`, `.scrollPosition`, `.scrollTargetLayout`, `.scrollClipDisabled`
+
+**Lifecycle (7):** `.onAppear`, `.onDisappear`, `.onChange`, `.task`, `.id`, `.tag`, `.equatable`
+
+**Animation (7+1):** `.animation`, `.transition`, `.matchedGeometryEffect`, `.contentTransition`, `.phaseAnimator`, `.keyframeAnimator`, `.sensoryFeedback`, `withAnimation()` (free function)
+
+**Accessibility (8):** `.accessibilityLabel`, `.accessibilityHint`, `.accessibilityValue`, `.accessibilityHidden`, `.accessibilityAction`, `.accessibilityElement`, `.accessibilityAddTraits`, `.accessibilitySortPriority`
+
+**Environment (6):** `.environment`, `.environmentObject`, `.transformEnvironment`, `.preference`, `.onPreferenceChange`, `.backgroundPreferenceValue`
+
+**Core (16):** `.padding`, `.frame`, `.opacity`, `.background`, `.cornerRadius`, `.border`, `.foregroundColor`, `.onTapGesture`, `.contextMenu`, `.hidden`, `.disabled`, `.help`, `.cssClass`, `.font`, `.bold`, `.foregroundStyle`, `.buttonStyle`
 
 ### Compatibility
 `Color` (all SwiftUI standard colors), SF Symbol mapping (200+ symbols), `resolveSFSymbol()`
 
+### Environment System
+`RenderContext`, `EnvironmentKey`, `EnvironmentValues`, `PreferenceKey`, `currentRenderContext`
+
 ## Known Gaps
 
 - No view diffing/reconciliation (rebuilds entire subtree on state change)
-- No animations beyond GtkStack slide transitions
-- No `@Environment` / `@EnvironmentObject`
-- No `ZStack` (overlapping views)
 - No `GeometryReader`
-- No drag-and-drop
-- No `DatePicker`, `ColorPicker`
+- No `LazyVStack` / `LazyHStack`
+- No `AsyncImage`
+- No Liquid Glass theming (Stream 4)
+- Full `@State`/`@Binding`/`@ObservedObject` property wrappers (Stream 2)
+- ~35 missing view types (Stream 3)
