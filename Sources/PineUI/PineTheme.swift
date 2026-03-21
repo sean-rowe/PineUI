@@ -110,6 +110,13 @@ public enum PineTheme {
         /* ── List ── */
         .pine-list { padding: 4px 0; }
 
+        /* ── List style variants ── */
+        .pine-list-sidebar { background: transparent; }
+        .pine-list-plain { background: transparent; padding: 0; }
+        .pine-list-inset { margin: 8px; }
+        .pine-list-inset-grouped { margin: 8px; border-radius: 10px; }
+        .pine-list-bordered { border: 1px solid alpha(@borders, 0.3); border-radius: 8px; }
+
         /* ── Form ── */
         .pine-form { }
 
