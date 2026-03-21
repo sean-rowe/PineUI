@@ -63,31 +63,37 @@ swift test               # Run tests
 
 ## Complete Component List
 
-### Layout
-`VStack`, `HStack`, `Spacer`, `Divider`, `LabeledDivider`, `ScrollView`, `Grid`, `LazyVGrid`, `Group`, `Form`, `NavigationSplitView`
+### Layout (18)
+`VStack`, `HStack`, `ZStack`, `LazyVStack`, `LazyHStack`, `Spacer`, `Divider`, `LabeledDivider`, `Separator`, `ScrollView`, `Grid`, `GridRow`, `LazyVGrid`, `LazyHGrid`, `Group`, `Form`, `NavigationSplitView`, `ViewThatFits`
 
-### Text & Display
-`Text`, `Image`, `Label`, `Badge`, `Avatar`, `ProgressView`, `Gauge`, `EmptyView`
+### Text & Display (11)
+`Text`, `Image`, `Label`, `Badge`, `Avatar`, `Chip`, `ProgressView`, `Gauge`, `EmptyView`, `ContentUnavailableView`, `ColorView`
 
-### Controls
-`Button`, `Toggle`, `TextField`, `SecureField`, `Slider`, `Stepper`, `Picker`, `Link`, `SearchField`, `TextEditor`, `MenuButton`
+### Controls (14)
+`Button`, `Toggle`, `TextField`, `SecureField`, `Slider`, `Stepper`, `Picker`, `Link`, `SearchField`, `TextEditor`, `MenuButton`, `DatePicker`, `ColorPicker`, `SegmentedControl`
 
-### Reactive Controls (two-way bound)
+### Reactive Controls (8)
 `BoundToggle`, `BoundSlider`, `BoundPicker`, `BoundTextField`, `ReactiveButton`, `ReactiveToggle`, `ReactiveText`, `ReactiveView`
 
-### Containers
-`List`, `Section`, `ForEach`, `GroupBox`, `TabView`, `Tab`, `DisclosureGroup`
+### Containers (10)
+`List`, `Section`, `ForEach`, `GroupBox`, `Card`, `TabView`, `Tab`, `DisclosureGroup`, `ControlGroup`, `OutlineGroup`
 
-### Navigation
+### Shapes (6)
+`Rectangle`, `RoundedRectangle`, `Circle`, `Ellipse`, `Capsule`, `Path` + `Shape` protocol with `.fill()` and `.stroke()`
+
+### Navigation (4)
 `NavigationStackBuilder`, `NavigationLink`, `BackButton`, `NavigationController`
 
-### App Structure
+### App Structure (5)
 `PineApp`, `PineWindow`, `PineSidebar`, `PineStatusBar`, `PineToolbar`
 
-### Dialogs
-`Alert.show()`, `Alert.confirm()`, `Sheet.present()`, `showPopover()`
+### Dialogs & Menus (6)
+`Alert.show()`, `Alert.confirm()`, `Sheet.present()`, `showPopover()`, `MenuView`, `InfoButton`
 
-### State Management
+### Misc Views (6)
+`LabeledContent`, `TimelineView`, `ShareLink`, `AsyncImage`, `HSplitView`, `VSplitView`, `Table`
+
+### State Management (4)
 `@PineState`, `StateStore<T>`, `Binding<T>`, `reactive()`
 
 ### Modifiers (152 total across 12 files)
@@ -128,8 +134,6 @@ swift test               # Run tests
 
 - No view diffing/reconciliation (rebuilds entire subtree on state change)
 - No `GeometryReader`
-- No `LazyVStack` / `LazyHStack`
-- No `AsyncImage`
 - No Liquid Glass theming (Stream 4)
 - Full `@State`/`@Binding`/`@ObservedObject` property wrappers (Stream 2)
-- ~35 missing view types (Stream 3)
+- No `WebView` (would need WebKitGTK dependency)
