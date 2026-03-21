@@ -329,69 +329,111 @@ func buildMessagePreview(_ email: Email) -> WidgetPtr {
     setHExpand(container)
     setVExpand(container)
 
-    // Header area
-    let header = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 8)
-    setMargins(header, start: 24, end: 24, top: 20, bottom: 16)
+    // ── Header area (Apple Mail style: spacious, clear hierarchy) ──
+    let header = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
+    setMargins(header, start: 24, end: 24, top: 24, bottom: 0)
 
-    // Subject line
+    // Row 1: Subject (large, prominent)
     let subjectLabel = makeLabel(email.subject)
-    addCssClass(subjectLabel, "pine-title2")
+    addCssClass(subjectLabel, "pine-title")
     setHAlign(subjectLabel, align: GTK_ALIGN_START)
     boxAppend(header, child: subjectLabel)
 
-    // From row — vertically centered
-    let fromRow = makeBox(GTK_ORIENTATION_HORIZONTAL, spacing: 8)
-    setHExpand(fromRow)
-    setVAlign(fromRow, align: GTK_ALIGN_CENTER)
+    // Spacer
+    let spacer1 = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
+    setSizeRequest(spacer1, width: -1, height: 16)
+    boxAppend(header, child: spacer1)
 
-    // Avatar
-    let avatarWidget = render(Avatar(String(email.from.prefix(2).uppercased()), size: 36))
-    setVAlign(avatarWidget, align: GTK_ALIGN_CENTER)
-    boxAppend(fromRow, child: avatarWidget)
+    // Row 2: Avatar + Sender info (left) + Action buttons (right)
+    let senderRow = makeBox(GTK_ORIENTATION_HORIZONTAL, spacing: 12)
+    setHExpand(senderRow)
 
-    // From details
-    let fromDetails = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 1)
-    setVAlign(fromDetails, align: GTK_ALIGN_CENTER)
+    // Avatar (left)
+    let avatarWidget = render(Avatar(String(email.from.prefix(2).uppercased()), size: 40))
+    setVAlign(avatarWidget, align: GTK_ALIGN_START)
+    boxAppend(senderRow, child: avatarWidget)
+
+    // Sender details (center, expands)
+    let senderInfo = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 2)
+    setHExpand(senderInfo)
+    setVAlign(senderInfo, align: GTK_ALIGN_START)
 
     let fromName = makeLabel(email.from)
     addCssClass(fromName, "pine-headline")
     setHAlign(fromName, align: GTK_ALIGN_START)
-    boxAppend(fromDetails, child: fromName)
+    boxAppend(senderInfo, child: fromName)
 
-    let fromEmail = makeLabel("To: \(email.to)  •  \(email.date) \(email.time)")
-    addCssClass(fromEmail, "pine-caption")
-    setHAlign(fromEmail, align: GTK_ALIGN_START)
-    boxAppend(fromDetails, child: fromEmail)
+    let fromAddr = makeLabel("<\(email.fromEmail)>")
+    addCssClass(fromAddr, "pine-caption")
+    setHAlign(fromAddr, align: GTK_ALIGN_START)
+    boxAppend(senderInfo, child: fromAddr)
 
-    setHExpand(fromDetails)
-    boxAppend(fromRow, child: fromDetails)
+    let toLine = makeLabel("To: \(email.to)")
+    addCssClass(toLine, "pine-caption")
+    setHAlign(toLine, align: GTK_ALIGN_START)
+    boxAppend(senderInfo, child: toLine)
 
-    // Action buttons (right side, vertically centered with avatar/name)
-    let actions = makeBox(GTK_ORIENTATION_HORIZONTAL, spacing: 6)
-    setVAlign(actions, align: GTK_ALIGN_CENTER)
+    let dateLine = makeLabel("\(email.date), \(email.time)")
+    addCssClass(dateLine, "pine-caption")
+    setHAlign(dateLine, align: GTK_ALIGN_START)
+    boxAppend(senderInfo, child: dateLine)
 
-    let replyBtn = gtk_button_new_with_label("Reply")!
-    applyCss(replyBtn, "padding: 3px 10px; font-size: 0.85em; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);")
-    boxAppend(actions, child: replyBtn)
+    boxAppend(senderRow, child: senderInfo)
 
-    let forwardBtn = gtk_button_new_with_label("Forward")!
-    applyCss(forwardBtn, "padding: 3px 10px; font-size: 0.85em; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);")
-    boxAppend(actions, child: forwardBtn)
+    // Action buttons (right, top-aligned)
+    let actions = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 6)
+    setVAlign(actions, align: GTK_ALIGN_START)
+
+    // Button row
+    let btnRow = makeBox(GTK_ORIENTATION_HORIZONTAL, spacing: 4)
+
+    let replyBtn = gtk_button_new_from_icon_name(resolveSFSymbol("arrow.uturn.backward"))!
+    gtk_widget_set_tooltip_text(replyBtn, "Reply")
+    applyCss(replyBtn, "padding: 6px 8px; border-radius: 6px; background: rgba(255,255,255,0.06);")
+    boxAppend(btnRow, child: replyBtn)
+
+    let replyAllBtn = gtk_button_new_from_icon_name(resolveSFSymbol("arrow.uturn.backward"))!
+    gtk_widget_set_tooltip_text(replyAllBtn, "Reply All")
+    applyCss(replyAllBtn, "padding: 6px 8px; border-radius: 6px; background: rgba(255,255,255,0.06);")
+    boxAppend(btnRow, child: replyAllBtn)
+
+    let forwardBtn = gtk_button_new_from_icon_name(resolveSFSymbol("arrow.uturn.forward"))!
+    gtk_widget_set_tooltip_text(forwardBtn, "Forward")
+    applyCss(forwardBtn, "padding: 6px 8px; border-radius: 6px; background: rgba(255,255,255,0.06);")
+    boxAppend(btnRow, child: forwardBtn)
+
+    let deleteBtn = gtk_button_new_from_icon_name(resolveSFSymbol("trash"))!
+    gtk_widget_set_tooltip_text(deleteBtn, "Delete")
+    applyCss(deleteBtn, "padding: 6px 8px; border-radius: 6px; background: rgba(255,255,255,0.06);")
+    boxAppend(btnRow, child: deleteBtn)
+
+    boxAppend(actions, child: btnRow)
+
+    // Tags row (below buttons)
+    let tagsRow = makeBox(GTK_ORIENTATION_HORIZONTAL, spacing: 4)
+    setHAlign(tagsRow, align: GTK_ALIGN_END)
 
     if email.isFlagged {
-        let flagLabel = makeLabel("Flagged")
-        applyCss(flagLabel, "background: rgba(233,135,58,0.2); color: #E9873A; border-radius: 9999px; padding: 2px 8px; font-size: 0.75em; font-weight: 600;")
-        boxAppend(actions, child: flagLabel)
+        let flagLabel = makeLabel("\u{2691} Flagged")
+        applyCss(flagLabel, "background: rgba(233,135,58,0.15); color: #E9873A; border-radius: 9999px; padding: 2px 10px; font-size: 0.78em; font-weight: 500;")
+        boxAppend(tagsRow, child: flagLabel)
     }
 
     if email.hasAttachment {
-        let attachLabel = makeLabel("1 Attachment")
-        applyCss(attachLabel, "background: rgba(0,136,255,0.15); color: #0088FF; border-radius: 9999px; padding: 2px 8px; font-size: 0.75em; font-weight: 600;")
-        boxAppend(actions, child: attachLabel)
+        let attachLabel = makeLabel("\u{1F4CE} 1 Attachment")
+        applyCss(attachLabel, "background: rgba(0,136,255,0.1); color: #0088FF; border-radius: 9999px; padding: 2px 10px; font-size: 0.78em; font-weight: 500;")
+        boxAppend(tagsRow, child: attachLabel)
     }
 
-    boxAppend(fromRow, child: actions)
-    boxAppend(header, child: fromRow)
+    boxAppend(actions, child: tagsRow)
+    boxAppend(senderRow, child: actions)
+
+    boxAppend(header, child: senderRow)
+
+    // Spacer before divider
+    let spacer2 = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
+    setSizeRequest(spacer2, width: -1, height: 16)
+    boxAppend(header, child: spacer2)
 
     boxAppend(container, child: header)
 
