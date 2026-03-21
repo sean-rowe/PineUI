@@ -149,7 +149,10 @@ public class PineSidebar {
 }
 
 private class SidebarClickHandler {
-    unowned let sidebar: PineSidebar
+    // Strong reference intentional — keeps PineSidebar alive as long as
+    // the GTK button exists. The button's destroy notify releases the handler,
+    // which releases the sidebar. Not a leak — lifecycle matches the widget.
+    let sidebar: PineSidebar
     let itemId: String
     init(sidebar: PineSidebar, itemId: String) {
         self.sidebar = sidebar
