@@ -95,6 +95,37 @@ public func applyCss(_ w: WidgetPtr, _ css: String) {
     gtk_style_context_add_provider_for_display(display, OpaquePointer(provider), UInt32(GTK_STYLE_PROVIDER_PRIORITY_USER))
     addCssClass(w, className)
 }
+// MARK: - Gesture helpers
+
+/// Attach a click gesture to a widget. Uses capture phase so it fires
+/// even when child widgets would otherwise consume the event.
+public func attachClickGesture(to w: WidgetPtr, action: @escaping () -> Void) {
+    let gesture = gtk_gesture_click_new()!
+
+    // Use capture phase so the gesture fires before children consume the click.
+    gtk_event_controller_set_propagation_phase(gesture, GTK_PHASE_CAPTURE)
+
+    let handler = GestureHandler(action: action)
+    let ptr = Unmanaged.passRetained(handler).toOpaque()
+    let callback: @convention(c) (
+        OpaquePointer?, Int32, Double, Double, gpointer?
+    ) -> Void = { _, _, _, _, userData in
+        guard let userData = userData else { return }
+        Unmanaged<GestureHandler>.fromOpaque(userData).takeUnretainedValue().action()
+    }
+
+    g_signal_connect_data(
+        UnsafeMutableRawPointer(gesture), "pressed",
+        unsafeBitCast(callback, to: GCallback.self),
+        ptr, { userData, _ in
+            guard let userData = userData else { return }
+            Unmanaged<GestureHandler>.fromOpaque(userData).release()
+        }, GConnectFlags(rawValue: 0)
+    )
+
+    gtk_widget_add_controller(w, gesture)
+}
+
 public func setMargins(_ w: WidgetPtr, start: Int32 = 0, end: Int32 = 0, top: Int32 = 0, bottom: Int32 = 0) {
     gtk_widget_set_margin_start(w, start); gtk_widget_set_margin_end(w, end)
     gtk_widget_set_margin_top(w, top); gtk_widget_set_margin_bottom(w, bottom)

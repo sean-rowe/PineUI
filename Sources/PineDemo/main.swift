@@ -1,7 +1,7 @@
 // PineDemo — A Notes app using macOS SwiftUI API names.
 //
-// Demonstrates: sidebar, toolbar, tabs, reactive state, alerts,
-// SF Symbol → GTK icon mapping, and the full SwiftUI-like API.
+// Demonstrates: sidebar selection, toolbar, tabs, navigation,
+// reactive state, SF Symbol mapping, and the full SwiftUI-like API.
 
 import PineUI
 
@@ -20,12 +20,31 @@ let notes = [
 
 // Reactive state.
 let noteCount = StateStore<Int>(4)
+let nav = NavigationController()
 
 struct NotesApp: PineApp {
     var appId: String { "com.pinyridgelabs.Notes" }
 
     func buildWindow() -> PineWindow {
-        PineWindow("Notes", width: 1100, height: 750)
+        let sidebar = PineSidebar()
+            .section("Favorites", items: [
+                SidebarItem("All Notes", icon: "doc.text", badge: 4),
+                SidebarItem("Recent", icon: "clock"),
+                SidebarItem("Shared", icon: "person.2"),
+            ])
+            .section("Folders", items: [
+                SidebarItem("Work", icon: "folder.fill", badge: 3),
+                SidebarItem("Personal", icon: "folder.fill", badge: 1),
+            ])
+            .section("Smart Folders", items: [
+                SidebarItem("Important", icon: "star.fill", badge: 2),
+                SidebarItem("Attachments", icon: "doc.richtext"),
+            ])
+            .onSelection { itemId in
+                nav.popToRoot()
+            }
+
+        return PineWindow("Notes", width: 1100, height: 750)
             .toolbar(PineToolbar()
                 .leading("Sidebar", icon: "sidebar.left") { }
                 .trailing("Search", icon: "magnifyingglass") { }
@@ -33,32 +52,23 @@ struct NotesApp: PineApp {
                     noteCount.value += 1
                 }
             )
-            .sidebar(PineSidebar()
-                .section("Favorites", items: [
-                    SidebarItem("All Notes", icon: "doc.text", badge: 4),
-                    SidebarItem("Recent", icon: "clock"),
-                    SidebarItem("Shared", icon: "person.2"),
-                ])
-                .section("Folders", items: [
-                    SidebarItem("Work", icon: "folder.fill", badge: 3),
-                    SidebarItem("Personal", icon: "folder.fill", badge: 1),
-                ])
-                .section("Smart Folders", items: [
-                    SidebarItem("Important", icon: "star.fill", badge: 2),
-                    SidebarItem("Attachments", icon: "doc.richtext"),
-                ])
-            )
+            .sidebar(sidebar)
             .content {
-                render(
-                    TabView {
-                        Tab("Notes", systemImage: "doc.text") {
-                            notesTab()
-                        }
-                        Tab("Settings", systemImage: "gear") {
-                            settingsTab()
+                NavigationStackBuilder(controller: nav)
+                    .root {
+                        TabView {
+                            Tab("Notes", systemImage: "doc.text") {
+                                notesTab()
+                            }
+                            Tab("Settings", systemImage: "gear") {
+                                settingsTab()
+                            }
                         }
                     }
-                )
+                    .destination("note-detail") {
+                        noteDetailView()
+                    }
+                    .build()
             }
             .statusBar(PineStatusBar()
                 .left(StatusItem("4 notes"))
@@ -96,10 +106,38 @@ func notesTab() -> some View {
                             Text(note.preview).foregroundStyle(.secondary)
                         }
                     }
+                    .onTapGesture {
+                        nav.push("note-detail")
+                    }
                 }
             }
             .padding()
         }
+    }
+}
+
+// MARK: - Note detail view (pushed via NavigationStack)
+
+func noteDetailView() -> some View {
+    VStack(alignment: .leading, spacing: 0) {
+        HStack(spacing: 8) {
+            BackButton(controller: nav)
+            Text("Note Detail").font(.title)
+            Spacer()
+        }
+        .padding()
+
+        Divider()
+
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Meeting Notes").font(.title2)
+            Text("March 20, 2026").font(.caption)
+
+            Divider()
+
+            TextEditor(text: "Discussed Q2 roadmap priorities.\n\n- Feature A: target April release\n- Feature B: needs design review\n- Feature C: blocked on API team\n\nAction items:\n1. Schedule design review for Feature B\n2. Follow up with API team on blockers\n3. Update sprint board with new priorities")
+        }
+        .padding()
     }
 }
 

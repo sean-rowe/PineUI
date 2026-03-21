@@ -133,6 +133,13 @@ extension View {
             applyCss(w, "color: \(color.cssValue);")
         }
     }
+
+    /// Attach a tap gesture to any view.
+    public func onTapGesture(_ action: @escaping () -> Void) -> ModifiedView<Self> {
+        ModifiedView(content: self) { w in
+            attachClickGesture(to: w, action: action)
+        }
+    }
 }
 
 // MARK: - Edge types
@@ -205,4 +212,11 @@ public struct Color {
     public func opacity(_ value: Double) -> Color {
         Color(css: "alpha(\(cssValue), \(value))")
     }
+}
+
+// MARK: - Gesture handler
+
+class GestureHandler {
+    let action: () -> Void
+    init(action: @escaping () -> Void) { self.action = action }
 }

@@ -62,6 +62,10 @@ public enum PineTheme {
             background: alpha(@accent_bg_color, 0.1);
         }
 
+        .pine-sidebar-item-active {
+            background: alpha(@accent_bg_color, 0.2);
+        }
+
         .pine-sidebar-badge {
             background: alpha(@window_fg_color, 0.12);
             color: alpha(@window_fg_color, 0.65);

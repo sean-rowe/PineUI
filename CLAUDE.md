@@ -39,7 +39,7 @@ swift test               # Run tests
 | `PineTheme.swift` | CSS theme (typography, sidebar, cards, buttons) |
 | `Compatibility.swift` | SF Symbol → GTK icon mapping (200+ symbols) |
 | `State.swift` | `StateStore`, `Binding`, `ReactiveButton`, `ReactiveToggle` |
-| `Components/` | Text, Controls, Stacks, Containers, List, Display, NavigationSplitView, MoreControls |
+| `Components/` | Text, Controls, Stacks, Containers, List, Display, NavigationSplitView, MoreControls, Navigation, Dialogs |
 
 ### Key Patterns
 
@@ -69,5 +69,4 @@ swift test               # Run tests
 - No full `@State` property wrapper (using `StateStore` class instead)
 - No `@Binding` propagation through view hierarchy
 - No view diffing/reconciliation (rebuilds entire subtree on state change)
-- No animations or transitions
-- No `NavigationStack` with push/pop
+- No animations or transitions (GtkStack has slide transitions for NavigationStack)
