@@ -357,7 +357,8 @@ public struct MenuButton: View, GTKRenderable {
         gtk_menu_button_set_popover(OpaquePointer(menuButton), UnsafeMutableRawPointer(pop).assumingMemoryBound(to: GtkWidget.self))
         g_object_unref(gpointer(menu))
 
-        buttonSetHasFrame(menuButton, hasFrame: false)
+        // GtkMenuButton is not a GtkButton — use addCssClass for flat style.
+        addCssClass(menuButton, "flat")
         return menuButton
     }
 }

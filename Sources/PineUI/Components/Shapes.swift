@@ -104,7 +104,7 @@ public struct Circle: Shape {
         let box = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
         setHExpand(box)
         setVExpand(box)
-        applyCss(box, "background: @accent_bg_color; aspect-ratio: 1; border-radius: 50%;")
+        applyCss(box, "background: @accent_bg_color; border-radius: 50%;")
         return box
     }
 }

@@ -128,7 +128,7 @@ public struct InfoButton<Content: View>: View, GTKRenderable {
         let btn = gtk_menu_button_new()!
         let img = makeImage(iconName: resolveSFSymbol("info.circle"))
         gtk_menu_button_set_child(OpaquePointer(btn), img)
-        buttonSetHasFrame(btn, hasFrame: false)
+        addCssClass(btn, "flat")
 
         let popover = gtk_popover_new()!
         let pop: UnsafeMutablePointer<_GtkPopover> = typed(popover)

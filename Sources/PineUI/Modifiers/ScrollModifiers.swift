@@ -129,11 +129,7 @@ extension View {
     /// When `false`, restores the default `overflow: hidden`.
     public func scrollClipDisabled(_ disabled: Bool = true) -> ModifiedView<Self> {
         ModifiedView(content: self) { w in
-            if disabled {
-                applyCss(w, "overflow: visible;")
-            } else {
-                applyCss(w, "overflow: hidden;")
-            }
+            gtk_widget_set_overflow(w, disabled ? GTK_OVERFLOW_VISIBLE : GTK_OVERFLOW_HIDDEN)
         }
     }
 }

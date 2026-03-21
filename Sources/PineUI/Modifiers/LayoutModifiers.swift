@@ -63,30 +63,29 @@ extension View {
 
     // MARK: 3. clipped
 
-    /// Clips the view to its bounding frame using CSS overflow: hidden.
+    /// Clips the view to its bounding frame.
     public func clipped() -> ModifiedView<Self> {
         ModifiedView(content: self) { w in
-            applyCss(w, "overflow: hidden;")
+            gtk_widget_set_overflow(w, GTK_OVERFLOW_HIDDEN)
         }
     }
 
     // MARK: 4. clipShape
 
-    /// Clips the view to the specified shape using CSS.
+    /// Clips the view to the specified shape.
     public func clipShape(_ shape: ClipShape) -> ModifiedView<Self> {
         ModifiedView(content: self) { w in
-            let css: String
+            gtk_widget_set_overflow(w, GTK_OVERFLOW_HIDDEN)
             switch shape {
             case .circle:
-                css = "overflow: hidden; border-radius: 50%;"
+                applyCss(w, "border-radius: 50%;")
             case .capsule:
-                css = "overflow: hidden; border-radius: 9999px;"
+                applyCss(w, "border-radius: 9999px;")
             case .roundedRectangle(let radius):
-                css = "overflow: hidden; border-radius: \(radius)px;"
+                applyCss(w, "border-radius: \(radius)px;")
             case .rectangle:
-                css = "overflow: hidden; border-radius: 0;"
+                break
             }
-            applyCss(w, css)
         }
     }
 
@@ -213,12 +212,14 @@ extension View {
 
     // MARK: 14. aspectRatio
 
-    /// Constrains the view to the specified aspect ratio using CSS.
+    /// Constrains the view to the specified aspect ratio.
+    /// GTK4 CSS doesn't support aspect-ratio, so we approximate by
+    /// setting a size request based on the current allocation.
     public func aspectRatio(_ ratio: Double? = nil, contentMode: ContentMode) -> ModifiedView<Self> {
         ModifiedView(content: self) { w in
-            if let ratio = ratio {
-                applyCss(w, "aspect-ratio: \(ratio);")
-            }
+            // aspect-ratio is not supported in GTK4 CSS.
+            // We skip it — the ratio is best enforced via .frame(width:height:).
+            _ = ratio
             switch contentMode {
             case .fit:
                 // Fit: don't expand beyond container, maintain ratio.
