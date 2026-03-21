@@ -300,7 +300,7 @@ func buildMessageRow(_ email: Email) -> WidgetPtr {
     buttonSetChild(button, child: row)
     setHExpand(button)
 
-    applyCss(button, "padding: 0; border-radius: 6px; margin: 1px 4px; background: none;")
+    addCssClass(button, "pine-mail-row")
 
     // Click handler
     let handler = EmailClickHandler(emailId: email.id)

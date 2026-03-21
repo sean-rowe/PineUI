@@ -289,9 +289,17 @@ public enum PineTheme {
             color: #999999;
         }
 
-        /* Mail row selection */
+        /* Mail row — consistent sizing for all states */
+        .pine-mail-row {
+            padding: 0;
+            border-radius: 6px;
+            margin: 1px 4px;
+            background: none;
+            border: 1px solid transparent;
+        }
         .pine-mail-row-selected {
             background: rgba(0,136,255,0.15);
+            border: 1px solid rgba(0,136,255,0.08);
         }
 
         /* Suggested / Destructive action buttons */
