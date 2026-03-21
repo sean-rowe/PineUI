@@ -23,6 +23,7 @@ swift test               # Run tests
 - **`MultiChildView`** — views with multiple children (TupleViews, ForEach) expose children for parent layout
 - **`render()`** — recursively resolves any `View` into a `WidgetPtr` (GTK widget)
 - **`AxisAwareSpacer`** — spacers that expand only in their parent's axis direction
+- **`@PineState`** — property wrapper providing SwiftUI-like `@State` semantics
 
 ### File Structure
 
@@ -30,16 +31,26 @@ swift test               # Run tests
 |------|---------|
 | `View.swift` | `View` protocol, `GTKRenderable`, `render()` function |
 | `ViewBuilder.swift` | `@resultBuilder`, TupleView2-5, ViewList (6-10), AnyView, conditionals |
-| `GtkHelpers.swift` | Swift wrappers for GTK4 C API (constructors, properties, CSS) |
-| `Modifiers.swift` | `.padding()`, `.frame()`, `.opacity()`, `.background()`, `.cornerRadius()`, `.border()`, `Color` type |
+| `GtkHelpers.swift` | Swift wrappers for GTK4 C API (constructors, properties, CSS, gestures) |
+| `Modifiers.swift` | View modifiers, `Color` type, `GestureHandler` |
 | `PineApp.swift` | `PineApp` protocol, GTK Application lifecycle |
-| `PineWindow.swift` | Window with sidebar/content/statusbar slots |
-| `PineSidebar.swift` | macOS-style source list sidebar |
+| `PineWindow.swift` | Window with toolbar/sidebar/content/statusbar slots |
+| `PineSidebar.swift` | macOS-style source list sidebar with selection |
 | `PineStatusBar.swift` | Bottom status bar |
-| `PineTheme.swift` | CSS theme (typography, sidebar, cards, buttons) |
+| `PineTheme.swift` | CSS theme (typography, sidebar, cards, buttons, toolbar) |
 | `Compatibility.swift` | SF Symbol → GTK icon mapping (200+ symbols) |
-| `State.swift` | `StateStore`, `Binding`, `ReactiveButton`, `ReactiveToggle` |
-| `Components/` | Text, Controls, Stacks, Containers, List, Display, NavigationSplitView, MoreControls, Navigation, Dialogs |
+| `State.swift` | `@PineState`, `StateStore`, `Binding`, reactive views, `SearchField`, `MenuButton` |
+| `Components/Text.swift` | `Text` with font/color/alignment modifiers |
+| `Components/Controls.swift` | `Button`, `Toggle`, `Label`, `Image`, `TextField` |
+| `Components/MoreControls.swift` | `Slider`, `Stepper`, `Picker`, `SecureField`, `TextEditor`, `Link` |
+| `Components/ReactiveControls.swift` | `BoundToggle`, `BoundSlider`, `BoundPicker`, `BoundTextField`, `LazyVGrid`, `Avatar`, `LabeledDivider`, `EmptyView` |
+| `Components/Stacks.swift` | `VStack`, `HStack`, `Spacer`, `Divider` |
+| `Components/Containers.swift` | `TabView`, `Tab`, `DisclosureGroup`, `ScrollView`, `Grid`, `Group` |
+| `Components/List.swift` | `List`, `Section`, `ForEach`, `GroupBox`, `Form` |
+| `Components/Display.swift` | `ProgressView`, `Gauge`, `Badge` |
+| `Components/NavigationSplitView.swift` | `NavigationSplitView` (sidebar + detail) |
+| `Components/Navigation.swift` | `NavigationStack`, `NavigationLink`, `BackButton` |
+| `Components/Dialogs.swift` | `Alert`, `Sheet`, `PineToolbar` |
 
 ### Key Patterns
 
@@ -47,26 +58,50 @@ swift test               # Run tests
 - **ViewBuilder 6-10:** Uses type-erased `AnyView` + `ViewList` instead of more TupleView types
 - **SF Symbols:** `Image(systemName: "folder.fill")` → maps to `"folder-symbolic"` for GTK
 - **Inline CSS:** `applyCss(widget, "border-radius: 10px;")` creates per-widget CSS providers
-- **Reactive state:** `StateStore<T>` with `onChange` callback, `ReactiveButton` updates label on state change
+- **Reactive state:** `@PineState var count = 0` — `$count` gives `StateStore<Int>`
+- **Navigation:** `NavigationStackBuilder` with `.root {}` and `.destination("name") {}`
 
-## What's Working
+## Complete Component List
 
-- Full declarative syntax: VStack, HStack, Text, Button, ForEach, GroupBox, etc.
-- Proper child flattening (HStack children actually lay out horizontally)
-- SF Symbol → GTK icon resolution (200+ symbols)
-- macOS-like theme with sidebar, cards, status bar, toolbar
-- Basic reactive state (StateStore, ReactiveButton, ReactiveToggle)
-- Modifiers: padding, frame, opacity, background, cornerRadius, border, foregroundColor
-- TabView with multiple tabs, icons, and proper page switching
-- Alert and confirm dialogs (Alert.show, Alert.confirm)
-- Sheet modal windows (Sheet.present)
-- Toolbar with leading/trailing icon buttons
-- ViewBuilder up to 10 children, Group for unlimited nesting
-- Color type with all standard SwiftUI colors
+### Layout
+`VStack`, `HStack`, `Spacer`, `Divider`, `LabeledDivider`, `ScrollView`, `Grid`, `LazyVGrid`, `Group`, `Form`, `NavigationSplitView`
+
+### Text & Display
+`Text`, `Image`, `Label`, `Badge`, `Avatar`, `ProgressView`, `Gauge`, `EmptyView`
+
+### Controls
+`Button`, `Toggle`, `TextField`, `SecureField`, `Slider`, `Stepper`, `Picker`, `Link`, `SearchField`, `TextEditor`, `MenuButton`
+
+### Reactive Controls (two-way bound)
+`BoundToggle`, `BoundSlider`, `BoundPicker`, `BoundTextField`, `ReactiveButton`, `ReactiveToggle`, `ReactiveText`, `ReactiveView`
+
+### Containers
+`List`, `Section`, `ForEach`, `GroupBox`, `TabView`, `Tab`, `DisclosureGroup`
+
+### Navigation
+`NavigationStackBuilder`, `NavigationLink`, `BackButton`, `NavigationController`
+
+### App Structure
+`PineApp`, `PineWindow`, `PineSidebar`, `PineStatusBar`, `PineToolbar`
+
+### Dialogs
+`Alert.show()`, `Alert.confirm()`, `Sheet.present()`, `showPopover()`
+
+### State Management
+`@PineState`, `StateStore<T>`, `Binding<T>`, `reactive()`
+
+### Modifiers
+`.padding()`, `.frame()`, `.opacity()`, `.background()`, `.cornerRadius()`, `.border()`, `.foregroundColor()`, `.onTapGesture()`, `.hidden()`, `.disabled()`, `.help()`, `.cssClass()`, `.font()`, `.bold()`, `.foregroundStyle()`, `.buttonStyle()`
+
+### Compatibility
+`Color` (all SwiftUI standard colors), SF Symbol mapping (200+ symbols), `resolveSFSymbol()`
 
 ## Known Gaps
 
-- No full `@State` property wrapper (using `StateStore` class instead)
-- No `@Binding` propagation through view hierarchy
 - No view diffing/reconciliation (rebuilds entire subtree on state change)
-- No animations or transitions (GtkStack has slide transitions for NavigationStack)
+- No animations beyond GtkStack slide transitions
+- No `@Environment` / `@EnvironmentObject`
+- No `ZStack` (overlapping views)
+- No `GeometryReader`
+- No drag-and-drop
+- No `DatePicker`, `ColorPicker`
