@@ -188,10 +188,8 @@ extension View {
     public func contextMenu(items: [MenuItem]) -> ModifiedView<Self> {
         ModifiedView(content: self) { w in
             let gesture = gtk_gesture_click_new()!
-            // Use secondary click (right-click) via GtkGestureClick's button property.
-            // GtkGestureClick inherits from GtkGestureSingle — set button to 3.
-            // Note: ideally this would use button 3 (right-click) via GtkGestureSingle,
-            // but Swift can't access g_object_set (variadic). Uses left-click with capture.
+            // Set to right-click (button 3) via C shim wrapper.
+            pine_gesture_single_set_button(UnsafeMutableRawPointer(gesture), 3)
             gtk_event_controller_set_propagation_phase(gesture, GTK_PHASE_CAPTURE)
 
             let handler = ContextMenuHandler(widget: w, items: items)

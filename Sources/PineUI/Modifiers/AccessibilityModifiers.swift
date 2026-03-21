@@ -17,45 +17,37 @@ extension View {
 
     // MARK: 1. accessibilityLabel
 
-    /// STUB: GTK4's gtk_accessible_update_property is variadic and uncallable from Swift.
-    /// Accepts the SwiftUI API for source compatibility.
+    /// Sets the accessibility label via C shim wrapper.
     public func accessibilityLabel(_ label: String) -> ModifiedView<Self> {
-        ModifiedView(content: self) { _ in
-            // STUB: gtk_accessible_update_property(widget, GTK_ACCESSIBLE_PROPERTY_LABEL, label, -1)
-            // is variadic — Swift cannot call variadic C functions.
+        ModifiedView(content: self) { w in
+            pine_accessible_set_label(w, label)
         }
     }
 
     // MARK: 2. accessibilityHint
 
-    /// STUB: GTK4's gtk_accessible_update_property is variadic and uncallable from Swift.
-    /// Accepts the SwiftUI API for source compatibility.
+    /// Sets the accessibility description (hint) via C shim wrapper.
     public func accessibilityHint(_ hint: String) -> ModifiedView<Self> {
-        ModifiedView(content: self) { _ in
-            // STUB: gtk_accessible_update_property(widget, GTK_ACCESSIBLE_PROPERTY_DESCRIPTION, hint, -1)
-            // is variadic — Swift cannot call variadic C functions.
+        ModifiedView(content: self) { w in
+            pine_accessible_set_description(w, hint)
         }
     }
 
     // MARK: 3. accessibilityValue
 
-    /// STUB: GTK4's gtk_accessible_update_property is variadic and uncallable from Swift.
-    /// Accepts the SwiftUI API for source compatibility.
+    /// Sets the accessibility value text via C shim wrapper.
     public func accessibilityValue(_ value: String) -> ModifiedView<Self> {
-        ModifiedView(content: self) { _ in
-            // STUB: gtk_accessible_update_property(widget, GTK_ACCESSIBLE_PROPERTY_VALUE_TEXT, value, -1)
-            // is variadic — Swift cannot call variadic C functions.
+        ModifiedView(content: self) { w in
+            pine_accessible_set_value_text(w, value)
         }
     }
 
     // MARK: 4. accessibilityHidden
 
-    /// STUB: GTK4's gtk_accessible_update_state is variadic and uncallable from Swift.
-    /// Accepts the SwiftUI API for source compatibility.
+    /// Sets the accessibility hidden state via C shim wrapper.
     public func accessibilityHidden(_ hidden: Bool) -> ModifiedView<Self> {
-        ModifiedView(content: self) { _ in
-            // STUB: gtk_accessible_update_state(widget, GTK_ACCESSIBLE_STATE_HIDDEN, hidden, -1)
-            // is variadic — Swift cannot call variadic C functions.
+        ModifiedView(content: self) { w in
+            pine_accessible_set_hidden(w, hidden ? 1 : 0)
         }
     }
 
