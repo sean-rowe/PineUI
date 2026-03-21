@@ -83,17 +83,33 @@ public func addCssClass(_ w: WidgetPtr, _ name: String) { gtk_widget_add_css_cla
 public func setSizeRequest(_ w: WidgetPtr, width: Int32, height: Int32) { gtk_widget_set_size_request(w, width, height) }
 
 /// Apply inline CSS to a single widget via a per-widget CssProvider.
-private var cssProviderCounter: Int = 0
+/// Multiple calls for the same widget are batched into a single provider.
+private var widgetCssMap: [UnsafeRawPointer: (provider: UnsafeMutableRawPointer, rules: [String], className: String)] = [:]
+private var cssCounter: Int = 0
+
+public func cssProviderCount() -> Int { cssCounter }
+
 public func applyCss(_ w: WidgetPtr, _ css: String) {
-    cssProviderCounter += 1
-    let className = "pine-inline-\(cssProviderCounter)"
-    let fullCss = ".\(className) { \(css) }"
-    let provider = gtk_css_provider_new()!
-    let p = UnsafeMutableRawPointer(provider).assumingMemoryBound(to: GtkCssProvider.self)
-    gtk_css_provider_load_from_string(p, fullCss)
-    let display = gdk_display_get_default()!
-    gtk_style_context_add_provider_for_display(display, OpaquePointer(provider), UInt32(GTK_STYLE_PROVIDER_PRIORITY_USER))
-    addCssClass(w, className)
+    let key = UnsafeRawPointer(w)
+
+    if var entry = widgetCssMap[key] {
+        entry.rules.append(css)
+        widgetCssMap[key] = entry
+        let fullCss = ".\(entry.className) { \(entry.rules.joined(separator: " ")) }"
+        let p = entry.provider.assumingMemoryBound(to: GtkCssProvider.self)
+        gtk_css_provider_load_from_string(p, fullCss)
+    } else {
+        cssCounter += 1
+        let className = "pine-inline-\(cssCounter)"
+        let fullCss = ".\(className) { \(css) }"
+        let provider = gtk_css_provider_new()!
+        let p = UnsafeMutableRawPointer(provider).assumingMemoryBound(to: GtkCssProvider.self)
+        gtk_css_provider_load_from_string(p, fullCss)
+        let display = gdk_display_get_default()!
+        gtk_style_context_add_provider_for_display(display, OpaquePointer(provider), UInt32(GTK_STYLE_PROVIDER_PRIORITY_USER))
+        addCssClass(w, className)
+        widgetCssMap[key] = (provider: UnsafeMutableRawPointer(provider), rules: [css], className: className)
+    }
 }
 // MARK: - Gesture helpers
 
