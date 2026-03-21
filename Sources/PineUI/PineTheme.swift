@@ -19,19 +19,304 @@ public enum PineTheme {
         /* ═══════════════════════════════════════════════════════════════
            PineUI Liquid Glass Theme — macOS Tahoe Design Language
            Precise values from MacTahoe GTK theme (dark mode)
-
-           Key variables (for reference):
-             $circular_radius: 9999px   $bt_radius: 6px
-             $bd_radius: 10px           $wm_radius: 26px
-             $mn_radius: 14px           $po_radius: 16px
-             $base_border_radius: 8px   $modal_radius: 16px
-             $headerbar_size: 50px      $menuitem_size: 32px
-             $small_size: 24px          $medium_size: 36px
-             $shorter_duration: 100ms   $longer_duration: 150ms
+           Loaded at PRIORITY_USER (800) to fully override Adwaita
            ═══════════════════════════════════════════════════════════════ */
 
+        /* ═══════════════════════════════════════════════════════════════
+           ADWAITA RESET — neutralize GTK4/Adwaita defaults
+           ═══════════════════════════════════════════════════════════════ */
+
+        /* Reset ALL widget backgrounds to our base */
+        window, box, frame, scrolledwindow, viewport, stack,
+        paned, overlay, revealer, expander, notebook, grid {
+            background: none;
+            border: none;
+            box-shadow: none;
+        }
+
+        /* Window base */
+        window {
+            background-color: #242424;
+            color: #dedede;
+        }
+
+        /* Reset button Adwaita styling completely */
+        button {
+            background: rgba(255,255,255,0.06);
+            border: none;
+            box-shadow: 0 1px 1px 0 rgba(0,0,0,0.03), 0 1px 2px 0 rgba(0,0,0,0.01);
+            border-radius: 6px;
+            color: #afafaf;
+            min-height: 24px;
+            padding: 4px 12px;
+        }
+        button:hover {
+            background: rgba(255,255,255,0.1);
+            color: #dedede;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15),
+                        inset 1px 2px 1px -1px rgba(255,255,255,0.08),
+                        inset -1px -1px 1px 0 rgba(255,255,255,0.08);
+        }
+        button:active, button:checked {
+            background: rgba(255,255,255,0.25);
+            color: #dedede;
+        }
+        button:disabled {
+            background: rgba(255,255,255,0.02);
+            color: rgba(222,222,222,0.35);
+        }
+        button.flat {
+            background: none;
+            border: none;
+            box-shadow: none;
+        }
+        button.flat:hover {
+            background: rgba(255,255,255,0.06);
+            box-shadow: none;
+        }
+
+        /* Reset entry Adwaita styling */
+        entry, searchentry, passwordentry {
+            background: rgba(255,255,255,0.06);
+            border: none;
+            border-radius: 6px;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+            color: #dedede;
+            min-height: 30px;
+            padding: 0 8px;
+        }
+        entry:focus, searchentry:focus, passwordentry:focus {
+            box-shadow: inset 0 0 0 2px rgba(0,136,255,0.75);
+        }
+
+        /* Reset switch Adwaita styling */
+        switch {
+            background: rgba(0,0,0,0.3);
+            border: none;
+            border-radius: 9999px;
+            min-height: 26px;
+            min-width: 48px;
+            box-shadow: none;
+        }
+        switch:checked {
+            background: #0088FF;
+        }
+        switch slider {
+            background: white;
+            border-radius: 9999px;
+            border: none;
+            min-width: 22px;
+            min-height: 22px;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.15), 0 2px 3px 0 rgba(0,0,0,0.1);
+        }
+        switch:hover slider {
+            box-shadow: 0 2px 3px 0 rgba(0,0,0,0.2), 0 3px 5px 0 rgba(0,0,0,0.15);
+        }
+
+        /* Reset scale/slider Adwaita styling */
+        scale {
+            padding: 8px 0;
+        }
+        scale trough {
+            background: rgba(0,0,0,0.2);
+            border: none;
+            border-radius: 9999px;
+            min-height: 6px;
+            box-shadow: none;
+        }
+        scale highlight {
+            background: #0088FF;
+            border-radius: 9999px;
+            border: none;
+        }
+        scale slider {
+            background: white;
+            border: none;
+            border-radius: 9999px;
+            min-width: 24px;
+            min-height: 26px;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05), 0 3px 8px 0 rgba(0,0,0,0.03);
+        }
+        scale slider:hover {
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05), 0 3px 12px 0 rgba(0,0,0,0.1);
+        }
+
+        /* Reset spinbutton Adwaita styling */
+        spinbutton {
+            background: rgba(255,255,255,0.06);
+            border: none;
+            border-radius: 6px;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+        }
+        spinbutton button {
+            background: none;
+            border: none;
+            box-shadow: none;
+            border-radius: 0;
+            min-width: 28px;
+        }
+        spinbutton button:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* Reset dropdown Adwaita styling */
+        dropdown, dropdown button {
+            background: rgba(255,255,255,0.06);
+            border: none;
+            border-radius: 6px;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+            color: #dedede;
+        }
+        dropdown:hover button, dropdown button:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Reset notebook/tabs Adwaita styling */
+        notebook {
+            background: none;
+        }
+        notebook header {
+            background: rgba(40,40,40,0.6);
+            border: none;
+            box-shadow: none;
+        }
+        notebook header tab {
+            background: none;
+            border: none;
+            border-radius: 9999px;
+            padding: 4px 14px;
+            margin: 3px 2px;
+            color: rgba(222,222,222,0.6);
+            box-shadow: none;
+        }
+        notebook header tab:checked {
+            background: rgba(255,255,255,0.1);
+            color: #dedede;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        notebook header tab:hover:not(:checked) {
+            background: rgba(255,255,255,0.04);
+            color: #dedede;
+        }
+
+        /* Reset progressbar Adwaita styling */
+        progressbar trough {
+            background: rgba(0,0,0,0.2);
+            border: none;
+            border-radius: 9999px;
+            min-height: 6px;
+        }
+        progressbar progress {
+            background: #0088FF;
+            border: none;
+            border-radius: 9999px;
+        }
+
+        /* Reset levelbar (gauge) */
+        levelbar trough {
+            background: rgba(0,0,0,0.2);
+            border: none;
+            border-radius: 4px;
+        }
+        levelbar block.filled {
+            background: #0088FF;
+            border-radius: 4px;
+            border: none;
+        }
+        levelbar block.empty {
+            background: none;
+            border: none;
+        }
+
+        /* Reset scrollbar */
+        scrollbar {
+            background: none;
+            border: none;
+        }
+        scrollbar slider {
+            background: rgba(255,255,255,0.25);
+            border: none;
+            border-radius: 9999px;
+            min-width: 6px;
+            min-height: 6px;
+        }
+        scrollbar slider:hover {
+            background: rgba(255,255,255,0.4);
+            min-width: 8px;
+        }
+
+        /* Reset popover */
+        popover, popover contents {
+            background: rgba(36,36,36,0.95);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            box-shadow: 0 3px 8px 1px rgba(0,0,0,0.08),
+                        0 10px 30px rgba(0,0,0,0.12);
+            color: #dedede;
+        }
+
+        /* Reset expander */
+        expander title {
+            background: none;
+            border: none;
+        }
+
+        /* Reset calendar */
+        calendar {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #dedede;
+        }
+        calendar day:selected {
+            background: #0088FF;
+            color: white;
+            border-radius: 50%;
+        }
+
+        /* Reset separator */
+        separator {
+            background: rgba(255,255,255,0.1);
+            min-height: 1px;
+            min-width: 1px;
+        }
+
+        /* Reset label colors */
+        label {
+            color: #dedede;
+        }
+        label.dim-label {
+            color: #999999;
+        }
+
+        /* Suggested / Destructive action buttons */
+        button.suggested-action {
+            background: #0088FF;
+            color: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,136,255,0.2);
+        }
+        button.suggested-action:hover {
+            box-shadow: 0 4px 16px rgba(0,136,255,0.3);
+        }
+        button.destructive-action {
+            background: #ED5F5D;
+            color: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(237,95,93,0.2);
+        }
+
+        /* Reset link button */
+        linkbutton {
+            color: #3484e2;
+        }
+
+        /* Spinner */
+        spinner {
+            color: #0088FF;
+        }
+
         /* ── Global transitions ── */
-        /* $longer_transition: all 150ms cubic-bezier(0.0, 0.0, 0.2, 1) */
         * {
             transition: all 150ms cubic-bezier(0.0, 0.0, 0.2, 1);
         }
@@ -641,7 +926,7 @@ public enum PineTheme {
         gtk_style_context_add_provider_for_display(
             display,
             styleProvider,
-            UInt32(GTK_STYLE_PROVIDER_PRIORITY_APPLICATION)
+            UInt32(GTK_STYLE_PROVIDER_PRIORITY_USER)
         )
     }
 }
