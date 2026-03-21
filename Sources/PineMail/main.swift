@@ -210,12 +210,12 @@ func buildContentArea() -> WidgetPtr {
             }
         }
 
-        // 2. Rebuild preview only
-        let prevParent: UnsafeMutablePointer<_GtkBox> = typed(previewWidget)
-        if let old = previewChild { gtk_box_remove(prevParent, old) }
+        // 2. Rebuild preview — build new BEFORE removing old to prevent resize flicker
         if let email = mockEmails.first(where: { $0.id == emailId }) {
+            let prevParent: UnsafeMutablePointer<_GtkBox> = typed(previewWidget)
             let newPreview = buildMessagePreview(email)
             gtk_box_append(prevParent, newPreview)
+            if let old = previewChild { gtk_box_remove(prevParent, old) }
             previewChild = newPreview
         }
     }
