@@ -194,8 +194,13 @@ func buildContentArea() -> WidgetPtr {
     }
 
     var previewChild: WidgetPtr? = gtk_widget_get_first_child(previewWidget)
+    var lastSelectedId = selectedEmail.value
 
     selectedEmail.onChange = { emailId in
+        // Skip rebuild if clicking the same email
+        guard emailId != lastSelectedId else { return }
+        lastSelectedId = emailId
+
         // 1. Swap selection CSS class (no list rebuild — no jump)
         for (id, btn) in rowButtons {
             if id == emailId {
