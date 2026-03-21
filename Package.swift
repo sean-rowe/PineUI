@@ -28,6 +28,12 @@ let package = Package(
             dependencies: ["PineUI"],
             path: "Sources/PineDemo"
         ),
+        // Todo list app — proof that PineUI works for real apps.
+        .executableTarget(
+            name: "PineTodo",
+            dependencies: ["PineUI"],
+            path: "Sources/PineTodo"
+        ),
         .testTarget(
             name: "PineUITests",
             dependencies: ["PineUI"],
