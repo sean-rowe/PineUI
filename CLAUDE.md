@@ -93,8 +93,8 @@ swift test               # Run tests
 ### Misc Views (6)
 `LabeledContent`, `TimelineView`, `ShareLink`, `AsyncImage`, `HSplitView`, `VSplitView`, `Table`
 
-### State Management (4)
-`@PineState`, `StateStore<T>`, `Binding<T>`, `reactive()`
+### State Management & Property Wrappers (14)
+`@PineState`, `@ObservedObject`, `@StateObject`, `@Published`, `@Environment`, `@EnvironmentObject`, `@AppStorage`, `@SceneStorage`, `@FocusState`, `@GestureState`, `@Namespace`, `StateStore<T>`, `Binding<T>`, `ObservableObject` protocol
 
 ### Modifiers (152 total across 12 files)
 
@@ -135,5 +135,5 @@ swift test               # Run tests
 - No view diffing/reconciliation (rebuilds entire subtree on state change)
 - No `GeometryReader`
 - No Liquid Glass theming (Stream 4)
-- Full `@State`/`@Binding`/`@ObservedObject` property wrappers (Stream 2)
 - No `WebView` (would need WebKitGTK dependency)
+- Property wrappers are source-compatible but don't trigger view re-renders (no reconciler)
