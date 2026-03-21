@@ -149,7 +149,7 @@ public class PineSidebar {
 }
 
 private class SidebarClickHandler {
-    let sidebar: PineSidebar
+    unowned let sidebar: PineSidebar
     let itemId: String
     init(sidebar: PineSidebar, itemId: String) {
         self.sidebar = sidebar

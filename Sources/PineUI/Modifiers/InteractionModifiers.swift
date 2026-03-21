@@ -176,18 +176,24 @@ extension View {
                 Unmanaged<HoverHandler>.fromOpaque(userData).takeUnretainedValue().onLeave()
             }
 
-            let ptr = Unmanaged.passRetained(handler).toOpaque()
+            // Retain once per signal connection so each can release independently.
+            let enterPtr = Unmanaged.passRetained(handler).toOpaque()
+            let leavePtr = Unmanaged.passRetained(handler).toOpaque()
 
             g_signal_connect_data(
                 UnsafeMutableRawPointer(controller), "enter",
                 unsafeBitCast(enterCallback, to: GCallback.self),
-                ptr, nil,
+                enterPtr,
+                { userData, _ in
+                    guard let userData = userData else { return }
+                    Unmanaged<HoverHandler>.fromOpaque(userData).release()
+                },
                 GConnectFlags(rawValue: 0)
             )
             g_signal_connect_data(
                 UnsafeMutableRawPointer(controller), "leave",
                 unsafeBitCast(leaveCallback, to: GCallback.self),
-                ptr,
+                leavePtr,
                 { userData, _ in
                     guard let userData = userData else { return }
                     Unmanaged<HoverHandler>.fromOpaque(userData).release()

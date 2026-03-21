@@ -4,14 +4,14 @@ import CGTK4
 
 /// Overlapping stack — layers children on top of each other.
 public struct ZStack<Content: View>: View, GTKRenderable {
-    let alignment: GtkAlign
+    let alignment: Alignment
     let content: Content
 
     public init(
         alignment: Alignment = .center,
         @ViewBuilder content: () -> Content
     ) {
-        self.alignment = alignment.gtkAlign
+        self.alignment = alignment
         self.content = content()
     }
 
@@ -32,8 +32,8 @@ public struct ZStack<Content: View>: View, GTKRenderable {
 
                 // Remaining children are overlays.
                 for child in children.dropFirst() {
-                    setHAlign(child, align: alignment)
-                    setVAlign(child, align: alignment)
+                    setHAlign(child, align: alignment.horizontalAlign)
+                    setVAlign(child, align: alignment.verticalAlign)
                     gtk_overlay_add_overlay(OpaquePointer(overlay), child)
                 }
             }
@@ -53,12 +53,22 @@ public enum Alignment {
     case leading, trailing
     case bottomLeading, bottom, bottomTrailing
 
-    var gtkAlign: GtkAlign {
+    var horizontalAlign: GtkAlign {
         switch self {
-        case .center: return GTK_ALIGN_CENTER
         case .topLeading, .leading, .bottomLeading: return GTK_ALIGN_START
         case .topTrailing, .trailing, .bottomTrailing: return GTK_ALIGN_END
-        case .top, .bottom: return GTK_ALIGN_CENTER
+        case .center, .top, .bottom: return GTK_ALIGN_CENTER
         }
     }
+
+    var verticalAlign: GtkAlign {
+        switch self {
+        case .topLeading, .top, .topTrailing: return GTK_ALIGN_START
+        case .bottomLeading, .bottom, .bottomTrailing: return GTK_ALIGN_END
+        case .center, .leading, .trailing: return GTK_ALIGN_CENTER
+        }
+    }
+
+    // Kept for backward compat — uses horizontal axis.
+    var gtkAlign: GtkAlign { horizontalAlign }
 }
