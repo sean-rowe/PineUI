@@ -34,6 +34,12 @@ let package = Package(
             dependencies: ["PineUI"],
             path: "Sources/PineTodo"
         ),
+        // Mail app — 1:1 port of Apple Mail (Tahoe) UI frame.
+        .executableTarget(
+            name: "PineMail",
+            dependencies: ["PineUI"],
+            path: "Sources/PineMail"
+        ),
         .testTarget(
             name: "PineUITests",
             dependencies: ["PineUI"],

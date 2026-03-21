@@ -7,6 +7,9 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
+#ifdef GDK_WINDOWING_X11
+#include <gdk/x11/gdkx.h>
+#endif
 #include <glib.h>
 #include <glib-object.h>
 #include <gio/gio.h>
