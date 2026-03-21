@@ -154,22 +154,29 @@ func buildContentArea() -> WidgetPtr {
     let sep = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL)!
     boxAppend(listContainer, child: sep)
 
-    // Message list — reactive, rebuilds when selection changes to update highlighting
+    // Message list — static build, selection uses CSS class swap (no rebuild)
     let listScroll = makeScrolledWindow()
     setVExpand(listScroll)
     scrolledWindowSetPolicy(listScroll, h: GTK_POLICY_NEVER, v: GTK_POLICY_AUTOMATIC)
 
-    let listWrapper = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
-    setVExpand(listWrapper)
+    let messageList = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
 
-    // Initial build
-    let initialList = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
-    for email in mockEmails { boxAppend(initialList, child: buildMessageRow(email)) }
-    boxAppend(listWrapper, child: initialList)
+    // Build all rows and track their buttons for selection highlighting
+    var rowButtons: [(Int, WidgetPtr)] = []
+    for email in mockEmails {
+        let btn = buildMessageRow(email)
+        rowButtons.append((email.id, btn))
+        boxAppend(messageList, child: btn)
+    }
 
-    var currentList = initialList
+    // Apply initial selection
+    for (id, btn) in rowButtons {
+        if id == selectedEmail.value {
+            addCssClass(btn, "pine-mail-row-selected")
+        }
+    }
 
-    scrolledWindowSetChild(listScroll, child: listWrapper)
+    scrolledWindowSetChild(listScroll, child: messageList)
     boxAppend(listContainer, child: listScroll)
 
     gtk_paned_set_start_child(p, listContainer)
@@ -186,19 +193,19 @@ func buildContentArea() -> WidgetPtr {
         boxAppend(previewWidget, child: initialPreview)
     }
 
-    // Track current preview child for replacement
     var previewChild: WidgetPtr? = gtk_widget_get_first_child(previewWidget)
 
     selectedEmail.onChange = { emailId in
-        // 1. Rebuild message list for highlight
-        let listParent: UnsafeMutablePointer<_GtkBox> = typed(listWrapper)
-        gtk_box_remove(listParent, currentList)
-        let newList = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
-        for email in mockEmails { boxAppend(newList, child: buildMessageRow(email)) }
-        gtk_box_append(listParent, newList)
-        currentList = newList
+        // 1. Swap selection CSS class (no list rebuild — no jump)
+        for (id, btn) in rowButtons {
+            if id == emailId {
+                gtk_widget_add_css_class(btn, "pine-mail-row-selected")
+            } else {
+                gtk_widget_remove_css_class(btn, "pine-mail-row-selected")
+            }
+        }
 
-        // 2. Rebuild preview
+        // 2. Rebuild preview only
         let prevParent: UnsafeMutablePointer<_GtkBox> = typed(previewWidget)
         if let old = previewChild { gtk_box_remove(prevParent, old) }
         if let email = mockEmails.first(where: { $0.id == emailId }) {
@@ -288,12 +295,7 @@ func buildMessageRow(_ email: Email) -> WidgetPtr {
     buttonSetChild(button, child: row)
     setHExpand(button)
 
-    // Style: selected state gets accent highlight, normal is flat
-    if email.id == selectedEmail.value {
-        applyCss(button, "padding: 0; border-radius: 6px; margin: 2px 6px; background: rgba(0,136,255,0.15); border: 1px solid rgba(0,136,255,0.1);")
-    } else {
-        applyCss(button, "padding: 0; border-radius: 0; background: none;")
-    }
+    applyCss(button, "padding: 0; border-radius: 6px; margin: 1px 4px; background: none;")
 
     // Click handler
     let handler = EmailClickHandler(emailId: email.id)
@@ -337,16 +339,19 @@ func buildMessagePreview(_ email: Email) -> WidgetPtr {
     setHAlign(subjectLabel, align: GTK_ALIGN_START)
     boxAppend(header, child: subjectLabel)
 
-    // From row
+    // From row — vertically centered
     let fromRow = makeBox(GTK_ORIENTATION_HORIZONTAL, spacing: 8)
     setHExpand(fromRow)
+    setVAlign(fromRow, align: GTK_ALIGN_CENTER)
 
     // Avatar
     let avatarWidget = render(Avatar(String(email.from.prefix(2).uppercased()), size: 36))
+    setVAlign(avatarWidget, align: GTK_ALIGN_CENTER)
     boxAppend(fromRow, child: avatarWidget)
 
     // From details
     let fromDetails = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 1)
+    setVAlign(fromDetails, align: GTK_ALIGN_CENTER)
 
     let fromName = makeLabel(email.from)
     addCssClass(fromName, "pine-headline")
@@ -361,7 +366,7 @@ func buildMessagePreview(_ email: Email) -> WidgetPtr {
     setHExpand(fromDetails)
     boxAppend(fromRow, child: fromDetails)
 
-    // Action buttons (right side of from row)
+    // Action buttons (right side, vertically centered with avatar/name)
     let actions = makeBox(GTK_ORIENTATION_HORIZONTAL, spacing: 6)
     setVAlign(actions, align: GTK_ALIGN_CENTER)
 

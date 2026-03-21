@@ -289,6 +289,11 @@ public enum PineTheme {
             color: #999999;
         }
 
+        /* Mail row selection */
+        .pine-mail-row-selected {
+            background: rgba(0,136,255,0.15);
+        }
+
         /* Suggested / Destructive action buttons */
         button.suggested-action {
             background: #0088FF;
