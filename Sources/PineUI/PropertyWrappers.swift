@@ -208,7 +208,8 @@ public struct SceneStorage<Value> {
 /// Mirrors SwiftUI's @Namespace.
 @propertyWrapper
 public struct Namespace {
-    /// Thread-safe monotonically-increasing counter — avoids a Foundation/UUID dependency.
+    // MARK: Thread Safety: GTK4 is single-threaded. All PineUI code runs on the main thread.
+    // `_counter` is incremented only during view initialisation, which always occurs on the main thread.
     private static var _counter: UInt64 = 0
     private static func nextID() -> UInt64 {
         _counter &+= 1

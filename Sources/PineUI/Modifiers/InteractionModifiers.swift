@@ -39,8 +39,11 @@ private class SubmitHandler {
 }
 
 /// Handler for focus-on-map events.
+/// Tracks a `fired` flag so focus is grabbed only on the first map signal,
+/// not on every subsequent show (e.g. tab switching).
 private class FocusHandler {
     let widget: WidgetPtr
+    var fired: Bool = false
     init(widget: WidgetPtr) { self.widget = widget }
 }
 
@@ -216,23 +219,31 @@ extension View {
 
     // MARK: 10. focused
 
-    /// Requests focus for this view when it maps to the screen.
+    /// Requests focus for this view when it first maps to the screen.
     ///
-    /// Connects a one-shot "map" signal; calls `gtk_widget_grab_focus` when `isFocused` is true.
+    /// Connects a "map" signal with a one-shot flag; calls `gtk_widget_grab_focus`
+    /// only the first time the widget becomes visible. Subsequent map signals
+    /// (e.g. from tab switching) are ignored.
     public func focused(_ isFocused: Bool) -> ModifiedView<Self> {
         ModifiedView(content: self) { w in
             guard isFocused else { return }
-            // Capture a raw pointer for use in the C callback (no Unmanaged needed
-            // since the widget lifetime is managed by GTK).
-            let rawWidget = UnsafeMutableRawPointer(w)
-            let mapCallback: @convention(c) (WidgetPtr?, gpointer?) -> Void = { widget, _ in
-                guard let widget = widget else { return }
+            let handler = FocusHandler(widget: w)
+            let ptr = Unmanaged.passRetained(handler).toOpaque()
+            let mapCallback: @convention(c) (WidgetPtr?, gpointer?) -> Void = { widget, userData in
+                guard let widget = widget, let userData = userData else { return }
+                let h = Unmanaged<FocusHandler>.fromOpaque(userData).takeUnretainedValue()
+                guard !h.fired else { return }
+                h.fired = true
                 gtk_widget_grab_focus(widget)
             }
             g_signal_connect_data(
-                rawWidget, "map",
+                UnsafeMutableRawPointer(w), "map",
                 unsafeBitCast(mapCallback, to: GCallback.self),
-                nil, nil,
+                ptr,
+                { userData, _ in
+                    guard let userData = userData else { return }
+                    Unmanaged<FocusHandler>.fromOpaque(userData).release()
+                },
                 GConnectFlags(rawValue: 0)
             )
         }

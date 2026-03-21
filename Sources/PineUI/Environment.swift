@@ -23,6 +23,8 @@ public class RenderContext {
     }
 }
 
+// MARK: Thread Safety: GTK4 is single-threaded. All PineUI code runs on the main thread.
+// `currentRenderContext` is read/written only during view rendering, which always occurs on the main thread.
 /// Global render context — used by environment modifiers.
 public var currentRenderContext = RenderContext()
 

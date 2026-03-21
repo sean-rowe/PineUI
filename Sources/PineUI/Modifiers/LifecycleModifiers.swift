@@ -64,14 +64,19 @@ extension View {
 
     /// Observes changes on a StateStore and calls the action with the new value.
     ///
-    /// Sets `store.onChange` on the underlying StateStore so the action fires
-    /// whenever the store's value mutates.
+    /// Chains onto any previously-installed onChange handler so that multiple
+    /// `.onChange(of:perform:)` calls on the same store are all honoured rather
+    /// than the later call silently discarding the earlier one.
     public func onChange<Value>(
         of store: StateStore<Value>,
         perform action: @escaping (Value) -> Void
     ) -> ModifiedView<Self> {
         ModifiedView(content: self) { _ in
-            store.onChange = { newValue in action(newValue) }
+            let previousHandler = store.onChange
+            store.onChange = { newValue in
+                previousHandler?(newValue)
+                action(newValue)
+            }
         }
     }
 

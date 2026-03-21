@@ -112,6 +112,12 @@ public struct BoundSlider: View, GTKRenderable {
             }, GConnectFlags(rawValue: 0)
         )
 
+        // Update widget when store changes externally.
+        let rangePtr = range
+        store.onChange = { newValue in
+            gtk_range_set_value(rangePtr, newValue)
+        }
+
         boxAppend(row, child: scale)
         return row
     }
@@ -169,6 +175,12 @@ public struct BoundPicker: View, GTKRenderable {
                 Unmanaged<StateStore<Int>>.fromOpaque(userData).release()
             }, GConnectFlags(rawValue: 0)
         )
+
+        // Update widget when store changes externally.
+        let dropdownPtr = OpaquePointer(dropdown)
+        store.onChange = { newValue in
+            gtk_drop_down_set_selected(dropdownPtr, guint(newValue))
+        }
 
         boxAppend(row, child: dropdown)
         return row

@@ -12,6 +12,8 @@
 /// Global animation context, readable by modifiers during a `withAnimation` block.
 public final class PineAnimationContext {
 
+    // MARK: Thread Safety: GTK4 is single-threaded. All PineUI code runs on the main thread.
+    // `current` is set/cleared only within withAnimation(), which is always called on the main thread.
     /// The animation currently in effect, or `nil` if no animation context is active.
     public static var current: PineAnimation?
 }

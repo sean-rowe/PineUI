@@ -84,6 +84,11 @@ public func setSizeRequest(_ w: WidgetPtr, width: Int32, height: Int32) { gtk_wi
 
 /// Apply inline CSS to a single widget via a per-widget CssProvider.
 /// Multiple calls for the same widget are batched into a single provider.
+/// Mergeable properties (filter, transform) are automatically combined
+/// so `.blur(3).grayscale(0.5)` produces `filter: blur(3px) grayscale(0.5);`
+/// instead of the second overwriting the first.
+// MARK: Thread Safety: GTK4 is single-threaded. All PineUI code runs on the main thread.
+// widgetCssMap and cssCounter are accessed only from the main thread; no locking is needed.
 private var widgetCssMap: [UnsafeRawPointer: (provider: UnsafeMutableRawPointer, rules: [String], className: String)] = [:]
 private var cssCounter: Int = 0
 
@@ -95,7 +100,8 @@ public func applyCss(_ w: WidgetPtr, _ css: String) {
     if var entry = widgetCssMap[key] {
         entry.rules.append(css)
         widgetCssMap[key] = entry
-        let fullCss = ".\(entry.className) { \(entry.rules.joined(separator: " ")) }"
+        let merged = mergeCssRules(entry.rules)
+        let fullCss = ".\(entry.className) { \(merged) }"
         let p = entry.provider.assumingMemoryBound(to: GtkCssProvider.self)
         gtk_css_provider_load_from_string(p, fullCss)
     } else {
@@ -110,6 +116,46 @@ public func applyCss(_ w: WidgetPtr, _ css: String) {
         addCssClass(w, className)
         widgetCssMap[key] = (provider: UnsafeMutableRawPointer(provider), rules: [css], className: className)
     }
+}
+
+/// Merge CSS rules, combining `filter` and `transform` values that would
+/// otherwise overwrite each other. E.g.:
+///   ["filter: blur(3px);", "filter: grayscale(0.5);"]
+/// becomes:
+///   "filter: blur(3px) grayscale(0.5);"
+private func mergeCssRules(_ rules: [String]) -> String {
+    var filterValues: [String] = []
+    var transformValues: [String] = []
+    var otherRules: [String] = []
+
+    for rule in rules {
+        let trimmed = rule.trimmingCharacters(in: .whitespaces)
+        if trimmed.hasPrefix("filter:") {
+            // Extract the value between "filter:" and ";"
+            let value = trimmed
+                .replacingOccurrences(of: "filter:", with: "")
+                .replacingOccurrences(of: ";", with: "")
+                .trimmingCharacters(in: .whitespaces)
+            filterValues.append(value)
+        } else if trimmed.hasPrefix("transform:") {
+            let value = trimmed
+                .replacingOccurrences(of: "transform:", with: "")
+                .replacingOccurrences(of: ";", with: "")
+                .trimmingCharacters(in: .whitespaces)
+            transformValues.append(value)
+        } else {
+            otherRules.append(rule)
+        }
+    }
+
+    var merged = otherRules.joined(separator: " ")
+    if !filterValues.isEmpty {
+        merged += " filter: \(filterValues.joined(separator: " "));"
+    }
+    if !transformValues.isEmpty {
+        merged += " transform: \(transformValues.joined(separator: " "));"
+    }
+    return merged
 }
 // MARK: - Gesture helpers
 
