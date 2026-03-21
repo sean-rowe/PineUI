@@ -53,10 +53,16 @@ swift test               # Run tests
 
 - Full declarative syntax: VStack, HStack, Text, Button, ForEach, GroupBox, etc.
 - Proper child flattening (HStack children actually lay out horizontally)
-- SF Symbol → GTK icon resolution
-- macOS-like theme with sidebar, cards, status bar
+- SF Symbol → GTK icon resolution (200+ symbols)
+- macOS-like theme with sidebar, cards, status bar, toolbar
 - Basic reactive state (StateStore, ReactiveButton, ReactiveToggle)
 - Modifiers: padding, frame, opacity, background, cornerRadius, border, foregroundColor
+- TabView with multiple tabs, icons, and proper page switching
+- Alert and confirm dialogs (Alert.show, Alert.confirm)
+- Sheet modal windows (Sheet.present)
+- Toolbar with leading/trailing icon buttons
+- ViewBuilder up to 10 children, Group for unlimited nesting
+- Color type with all standard SwiftUI colors
 
 ## Known Gaps
 
@@ -65,5 +71,3 @@ swift test               # Run tests
 - No view diffing/reconciliation (rebuilds entire subtree on state change)
 - No animations or transitions
 - No `NavigationStack` with push/pop
-- No `Sheet`, `Alert`, `Menu` popups
-- TabView only renders first tab

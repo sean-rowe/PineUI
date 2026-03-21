@@ -1,7 +1,7 @@
 // PineDemo — A Notes app using macOS SwiftUI API names.
 //
-// This uses SF Symbol names (folder.fill, doc.text, star.fill) —
-// PineUI automatically maps them to GTK icons.
+// Demonstrates: sidebar, toolbar, tabs, reactive state, alerts,
+// SF Symbol → GTK icon mapping, and the full SwiftUI-like API.
 
 import PineUI
 
@@ -18,7 +18,7 @@ let notes = [
     Note(title: "Sourdough Recipe", preview: "500g flour, 350g water, 100g starter.", date: "Mar 15"),
 ]
 
-// Reactive state — proves @State-like behavior works.
+// Reactive state.
 let noteCount = StateStore<Int>(4)
 
 struct NotesApp: PineApp {
@@ -26,9 +26,15 @@ struct NotesApp: PineApp {
 
     func buildWindow() -> PineWindow {
         PineWindow("Notes", width: 1100, height: 750)
+            .toolbar(PineToolbar()
+                .leading("Sidebar", icon: "sidebar.left") { }
+                .trailing("Search", icon: "magnifyingglass") { }
+                .trailing("New Note", icon: "plus") {
+                    noteCount.value += 1
+                }
+            )
             .sidebar(PineSidebar()
                 .section("Favorites", items: [
-                    // Using SF Symbol names — auto-resolved to GTK icons
                     SidebarItem("All Notes", icon: "doc.text", badge: 4),
                     SidebarItem("Recent", icon: "clock"),
                     SidebarItem("Shared", icon: "person.2"),
@@ -43,52 +49,92 @@ struct NotesApp: PineApp {
                 ])
             )
             .content {
-                let container = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
-                setVExpand(container)
-
-                // Header with reactive "+ New Note" button.
-                let header = render(
-                    HStack(spacing: 12) {
-                        Text("All Notes").font(.title)
-                        Spacer()
-                        ReactiveButton(state: noteCount, label: { "+ New Note (\($0))" }) {
-                            noteCount.value += 1
+                render(
+                    TabView {
+                        Tab("Notes", systemImage: "doc.text") {
+                            notesTab()
                         }
-                        .cssClass("suggested-action")
-                    }
-                    .padding()
-                )
-                boxAppend(container, child: header)
-
-                boxAppend(container, child: render(Divider()))
-
-                let scroll = render(
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 8) {
-                            ForEach(notes) { note in
-                                GroupBox {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        HStack(spacing: 4) {
-                                            Text(note.title).font(.headline)
-                                            Spacer()
-                                            Text(note.date).font(.caption)
-                                        }
-                                        Text(note.preview).foregroundStyle(.secondary)
-                                    }
-                                }
-                            }
+                        Tab("Settings", systemImage: "gear") {
+                            settingsTab()
                         }
-                        .padding()
                     }
                 )
-                boxAppend(container, child: scroll)
-
-                return container
             }
             .statusBar(PineStatusBar()
                 .left(StatusItem("4 notes"))
                 .right(StatusItem("Synced", icon: "checkmark.circle"))
             )
+    }
+}
+
+// MARK: - Notes tab
+
+func notesTab() -> some View {
+    VStack(alignment: .leading, spacing: 0) {
+        HStack(spacing: 12) {
+            Text("All Notes").font(.title)
+            Spacer()
+            ReactiveButton(state: noteCount, label: { "\($0) notes" }) {
+                noteCount.value += 1
+            }
+            .cssClass("suggested-action")
+        }
+        .padding()
+
+        Divider()
+
+        ScrollView {
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(notes) { note in
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 4) {
+                                Text(note.title).font(.headline)
+                                Spacer()
+                                Text(note.date).font(.caption)
+                            }
+                            Text(note.preview).foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+    }
+}
+
+// MARK: - Settings tab
+
+func settingsTab() -> some View {
+    ScrollView {
+        Form {
+            GroupBox("Appearance") {
+                Picker("Theme", options: ["System", "Light", "Dark"])
+                Picker("Font Size", options: ["Small", "Medium", "Large"])
+            }
+
+            GroupBox("Editor") {
+                Toggle("Spell Check")
+                Toggle("Smart Quotes")
+                Slider(value: 0.7, in: 0...1, label: "Line Spacing")
+            }
+
+            GroupBox("Sync") {
+                Toggle("iCloud Sync")
+                Toggle("Auto-save")
+                Stepper("Backup Interval (hours)", in: 1...24)
+            }
+
+            GroupBox("About") {
+                HStack(spacing: 8) {
+                    Image(systemName: "doc.text")
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("PineUI Notes").font(.headline)
+                        Text("Version 1.0 — Built with PineUI").font(.caption)
+                    }
+                }
+            }
+        }
     }
 }
 

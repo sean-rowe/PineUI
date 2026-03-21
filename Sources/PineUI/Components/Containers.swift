@@ -2,7 +2,15 @@
 
 import CGTK4
 
+/// Protocol for views that can be added as notebook pages.
+public protocol TabItemView {
+    var tabTitle: String { get }
+    var tabIconName: String? { get }
+    func renderTabContent() -> WidgetPtr
+}
+
 /// A tabbed view — like macOS TabView.
+/// Detects Tab children and creates separate GtkNotebook pages.
 public struct TabView<Content: View>: View, GTKRenderable {
     let content: Content
 
@@ -14,30 +22,73 @@ public struct TabView<Content: View>: View, GTKRenderable {
 
     public func renderGTK() -> WidgetPtr {
         let notebook = gtk_notebook_new()!
+        let nb = OpaquePointer(notebook)
         setHExpand(notebook)
         setVExpand(notebook)
-        // For now, render content into a single page.
-        // Full implementation would extract Tab items.
-        let page = render(content)
-        let label = makeLabel("Tab")
-        gtk_notebook_append_page(OpaquePointer(notebook), page, label)
+
+        // Collect tab items from content.
+        let tabs = collectTabs(from: content)
+
+        if tabs.isEmpty {
+            // Fallback: no Tab children found, render as single page.
+            let page = render(content)
+            let label = makeLabel("Tab")
+            gtk_notebook_append_page(nb, page, label)
+        } else {
+            for tab in tabs {
+                let page = tab.renderTabContent()
+                let tabLabel: WidgetPtr
+                if let icon = tab.tabIconName {
+                    let row = makeBox(GTK_ORIENTATION_HORIZONTAL, spacing: 6)
+                    let img = makeImage(iconName: resolveSFSymbol(icon))
+                    boxAppend(row, child: img)
+                    let lbl = makeLabel(tab.tabTitle)
+                    boxAppend(row, child: lbl)
+                    tabLabel = row
+                } else {
+                    tabLabel = makeLabel(tab.tabTitle)
+                }
+                gtk_notebook_append_page(nb, page, tabLabel)
+            }
+        }
+
         return notebook
     }
 }
 
+/// Recursively collects TabItemView instances from a view tree.
+private func collectTabs<V: View>(from view: V) -> [TabItemView] {
+    if let tab = view as? TabItemView {
+        return [tab]
+    }
+    if let multi = view as? MultiChildTabView {
+        return multi.collectTabItems()
+    }
+    return []
+}
+
+/// Protocol for multi-child views that can expose tab items.
+public protocol MultiChildTabView {
+    func collectTabItems() -> [TabItemView]
+}
+
 /// A tab item — wraps content with a label for TabView.
-public struct Tab<Content: View>: View, GTKRenderable {
-    let title: String
-    let iconName: String?
+public struct Tab<Content: View>: View, GTKRenderable, TabItemView {
+    public let tabTitle: String
+    public let tabIconName: String?
     let content: Content
 
     public init(_ title: String, systemImage: String? = nil, @ViewBuilder content: () -> Content) {
-        self.title = title
-        self.iconName = systemImage
+        self.tabTitle = title
+        self.tabIconName = systemImage
         self.content = content()
     }
 
     public var body: Never { fatalError() }
+
+    public func renderTabContent() -> WidgetPtr {
+        render(content)
+    }
 
     public func renderGTK() -> WidgetPtr {
         render(content)

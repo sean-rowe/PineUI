@@ -131,6 +131,13 @@ public enum PineTheme {
         /* ── Level bar (Gauge) ── */
         levelbar block.filled { background: @accent_bg_color; }
 
+        /* ── Toolbar ── */
+        .pine-toolbar {
+            background: alpha(@headerbar_bg_color, 0.95);
+            border-bottom: 1px solid alpha(@borders, 0.3);
+            min-height: 36px;
+        }
+
         /* ── Window rounding ── */
         window { border-radius: 10px; }
         """

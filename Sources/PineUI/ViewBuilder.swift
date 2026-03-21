@@ -104,16 +104,20 @@ public protocol MultiChildView {
 
 // MARK: - Tuple views (hold multiple children)
 
-public struct TupleView2<V0: View, V1: View>: View, GTKRenderable, MultiChildView {
+public struct TupleView2<V0: View, V1: View>: View, GTKRenderable, MultiChildView, MultiChildTabView {
     let v0: V0, v1: V1
     init(_ v0: V0, _ v1: V1) { self.v0 = v0; self.v1 = v1 }
     public var body: Never { fatalError() }
+    public var viewList: [any View] { [v0, v1] }
     public func renderChildren() -> [WidgetPtr] {
         flatRenderChildren(v0) + flatRenderChildren(v1)
     }
     public func renderChildrenForAxis(_ axis: GtkOrientation) -> [WidgetPtr] {
         flatRenderChildrenForAxis(v0, axis: axis) + flatRenderChildrenForAxis(v1, axis: axis)
     }
+    public func collectTabItems() -> [TabItemView] {
+        viewList.compactMap { $0 as? TabItemView }
+    }
     public func renderGTK() -> WidgetPtr {
         let box = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
         for child in renderChildren() { boxAppend(box, child: child) }
@@ -121,16 +125,20 @@ public struct TupleView2<V0: View, V1: View>: View, GTKRenderable, MultiChildVie
     }
 }
 
-public struct TupleView3<V0: View, V1: View, V2: View>: View, GTKRenderable, MultiChildView {
+public struct TupleView3<V0: View, V1: View, V2: View>: View, GTKRenderable, MultiChildView, MultiChildTabView {
     let v0: V0, v1: V1, v2: V2
     init(_ v0: V0, _ v1: V1, _ v2: V2) { self.v0 = v0; self.v1 = v1; self.v2 = v2 }
     public var body: Never { fatalError() }
+    public var viewList: [any View] { [v0, v1, v2] }
     public func renderChildren() -> [WidgetPtr] {
         flatRenderChildren(v0) + flatRenderChildren(v1) + flatRenderChildren(v2)
     }
     public func renderChildrenForAxis(_ axis: GtkOrientation) -> [WidgetPtr] {
         flatRenderChildrenForAxis(v0, axis: axis) + flatRenderChildrenForAxis(v1, axis: axis) + flatRenderChildrenForAxis(v2, axis: axis)
     }
+    public func collectTabItems() -> [TabItemView] {
+        viewList.compactMap { $0 as? TabItemView }
+    }
     public func renderGTK() -> WidgetPtr {
         let box = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
         for child in renderChildren() { boxAppend(box, child: child) }
@@ -138,16 +146,20 @@ public struct TupleView3<V0: View, V1: View, V2: View>: View, GTKRenderable, Mul
     }
 }
 
-public struct TupleView4<V0: View, V1: View, V2: View, V3: View>: View, GTKRenderable, MultiChildView {
+public struct TupleView4<V0: View, V1: View, V2: View, V3: View>: View, GTKRenderable, MultiChildView, MultiChildTabView {
     let v0: V0, v1: V1, v2: V2, v3: V3
     init(_ v0: V0, _ v1: V1, _ v2: V2, _ v3: V3) { self.v0 = v0; self.v1 = v1; self.v2 = v2; self.v3 = v3 }
     public var body: Never { fatalError() }
+    public var viewList: [any View] { [v0, v1, v2, v3] }
     public func renderChildren() -> [WidgetPtr] {
         flatRenderChildren(v0) + flatRenderChildren(v1) + flatRenderChildren(v2) + flatRenderChildren(v3)
     }
     public func renderChildrenForAxis(_ axis: GtkOrientation) -> [WidgetPtr] {
         flatRenderChildrenForAxis(v0, axis: axis) + flatRenderChildrenForAxis(v1, axis: axis) + flatRenderChildrenForAxis(v2, axis: axis) + flatRenderChildrenForAxis(v3, axis: axis)
     }
+    public func collectTabItems() -> [TabItemView] {
+        viewList.compactMap { $0 as? TabItemView }
+    }
     public func renderGTK() -> WidgetPtr {
         let box = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
         for child in renderChildren() { boxAppend(box, child: child) }
@@ -155,15 +167,19 @@ public struct TupleView4<V0: View, V1: View, V2: View, V3: View>: View, GTKRende
     }
 }
 
-public struct TupleView5<V0: View, V1: View, V2: View, V3: View, V4: View>: View, GTKRenderable, MultiChildView {
+public struct TupleView5<V0: View, V1: View, V2: View, V3: View, V4: View>: View, GTKRenderable, MultiChildView, MultiChildTabView {
     let v0: V0, v1: V1, v2: V2, v3: V3, v4: V4
     init(_ v0: V0, _ v1: V1, _ v2: V2, _ v3: V3, _ v4: V4) { self.v0 = v0; self.v1 = v1; self.v2 = v2; self.v3 = v3; self.v4 = v4 }
     public var body: Never { fatalError() }
+    public var viewList: [any View] { [v0, v1, v2, v3, v4] }
     public func renderChildren() -> [WidgetPtr] {
         flatRenderChildren(v0) + flatRenderChildren(v1) + flatRenderChildren(v2) + flatRenderChildren(v3) + flatRenderChildren(v4)
     }
     public func renderChildrenForAxis(_ axis: GtkOrientation) -> [WidgetPtr] {
         flatRenderChildrenForAxis(v0, axis: axis) + flatRenderChildrenForAxis(v1, axis: axis) + flatRenderChildrenForAxis(v2, axis: axis) + flatRenderChildrenForAxis(v3, axis: axis) + flatRenderChildrenForAxis(v4, axis: axis)
+    }
+    public func collectTabItems() -> [TabItemView] {
+        viewList.compactMap { $0 as? TabItemView }
     }
     public func renderGTK() -> WidgetPtr {
         let box = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
@@ -178,9 +194,11 @@ public struct TupleView5<V0: View, V1: View, V2: View, V3: View, V4: View>: View
 public struct AnyView: View, GTKRenderable {
     private let _render: () -> WidgetPtr
     private let _renderForAxis: (GtkOrientation) -> WidgetPtr
+    let tabItem: TabItemView?
 
     public init<V: View>(_ view: V) {
         self._render = { render(view) }
+        self.tabItem = view as? TabItemView
         if let spacer = view as? AxisAwareSpacer {
             self._renderForAxis = { axis in spacer.renderForAxis(axis) }
         } else {
@@ -194,11 +212,15 @@ public struct AnyView: View, GTKRenderable {
 }
 
 /// A list of type-erased views — used for 6-10 children in ViewBuilder.
-public struct ViewList: View, GTKRenderable, MultiChildView {
+public struct ViewList: View, GTKRenderable, MultiChildView, MultiChildTabView {
     let views: [AnyView]
 
     init(_ views: [AnyView]) {
         self.views = views
+    }
+
+    public func collectTabItems() -> [TabItemView] {
+        views.compactMap { $0.tabItem }
     }
 
     public var body: Never { fatalError() }

@@ -8,6 +8,7 @@ public class PineWindow {
     public let defaultWidth: Int32
     public let defaultHeight: Int32
 
+    private var toolbar: PineToolbar?
     private var sidebar: PineSidebar?
     private var contentBuilder: (() -> WidgetPtr)?
     private var statusBar: PineStatusBar?
@@ -18,6 +19,9 @@ public class PineWindow {
         self.defaultWidth = width
         self.defaultHeight = height
     }
+
+    @discardableResult
+    public func toolbar(_ toolbar: PineToolbar) -> PineWindow { self.toolbar = toolbar; return self }
 
     @discardableResult
     public func sidebar(_ sidebar: PineSidebar) -> PineWindow { self.sidebar = sidebar; return self }
@@ -35,6 +39,8 @@ public class PineWindow {
 
         let outerBox = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
         setVExpand(outerBox)
+
+        if let toolbar = self.toolbar { boxAppend(outerBox, child: toolbar.build()) }
 
         let mainBox = makeBox(GTK_ORIENTATION_HORIZONTAL, spacing: 0)
         setVExpand(mainBox)
