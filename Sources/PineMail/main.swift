@@ -129,31 +129,47 @@ func buildContentArea() -> WidgetPtr {
     let listContainer = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
     setSizeRequest(listContainer, width: 340, height: -1)
 
-    // Search bar at top of message list
-    let searchRow = render(
-        HStack(spacing: 0) {
-            SearchField("Search Mail") { _ in }
-        }
-        .padding(8)
-    )
-    boxAppend(listContainer, child: searchRow)
+    // Mailbox title + count
+    let listHeader = makeBox(GTK_ORIENTATION_HORIZONTAL, spacing: 8)
+    setMargins(listHeader, start: 12, end: 12, top: 10, bottom: 4)
+
+    let mailboxTitle = makeLabel("All Inboxes")
+    addCssClass(mailboxTitle, "pine-headline")
+    setHExpand(mailboxTitle)
+    setHAlign(mailboxTitle, align: GTK_ALIGN_START)
+    boxAppend(listHeader, child: mailboxTitle)
+
+    let unreadCount = makeLabel("2 unread")
+    addCssClass(unreadCount, "pine-caption")
+    boxAppend(listHeader, child: unreadCount)
+
+    boxAppend(listContainer, child: listHeader)
+
+    // Search bar
+    let searchEntry = gtk_search_entry_new()!
+    setMargins(searchEntry, start: 8, end: 8, top: 2, bottom: 6)
+    boxAppend(listContainer, child: searchEntry)
 
     // Divider
     let sep = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL)!
     boxAppend(listContainer, child: sep)
 
-    // Message list (reactive — rebuilds when selection changes)
+    // Message list — reactive, rebuilds when selection changes to update highlighting
     let listScroll = makeScrolledWindow()
     setVExpand(listScroll)
     scrolledWindowSetPolicy(listScroll, h: GTK_POLICY_NEVER, v: GTK_POLICY_AUTOMATIC)
 
-    let messageList = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
+    let listWrapper = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
+    setVExpand(listWrapper)
 
-    for email in mockEmails {
-        boxAppend(messageList, child: buildMessageRow(email))
-    }
+    // Initial build
+    let initialList = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
+    for email in mockEmails { boxAppend(initialList, child: buildMessageRow(email)) }
+    boxAppend(listWrapper, child: initialList)
 
-    scrolledWindowSetChild(listScroll, child: messageList)
+    var currentList = initialList
+
+    scrolledWindowSetChild(listScroll, child: listWrapper)
     boxAppend(listContainer, child: listScroll)
 
     gtk_paned_set_start_child(p, listContainer)
@@ -163,15 +179,33 @@ func buildContentArea() -> WidgetPtr {
     setHExpand(previewWidget)
     setVExpand(previewWidget)
 
-    // Build initial preview
-    reactive(in: previewWidget, state: selectedEmail) { emailId in
-        guard let email = mockEmails.first(where: { $0.id == emailId }) else {
-            return render(
-                ContentUnavailableView("No Message Selected", systemImage: "envelope",
-                    description: "Select a message from the list to read it")
-            )
+    // Initial preview
+    let firstEmail = mockEmails.first(where: { $0.id == selectedEmail.value })
+    if let email = firstEmail {
+        let initialPreview = buildMessagePreview(email)
+        boxAppend(previewWidget, child: initialPreview)
+    }
+
+    // Track current preview child for replacement
+    var previewChild: WidgetPtr? = gtk_widget_get_first_child(previewWidget)
+
+    selectedEmail.onChange = { emailId in
+        // 1. Rebuild message list for highlight
+        let listParent: UnsafeMutablePointer<_GtkBox> = typed(listWrapper)
+        gtk_box_remove(listParent, currentList)
+        let newList = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
+        for email in mockEmails { boxAppend(newList, child: buildMessageRow(email)) }
+        gtk_box_append(listParent, newList)
+        currentList = newList
+
+        // 2. Rebuild preview
+        let prevParent: UnsafeMutablePointer<_GtkBox> = typed(previewWidget)
+        if let old = previewChild { gtk_box_remove(prevParent, old) }
+        if let email = mockEmails.first(where: { $0.id == emailId }) {
+            let newPreview = buildMessagePreview(email)
+            gtk_box_append(prevParent, newPreview)
+            previewChild = newPreview
         }
-        return buildMessagePreview(email)
     }
 
     gtk_paned_set_end_child(p, previewWidget)
@@ -253,7 +287,13 @@ func buildMessageRow(_ email: Email) -> WidgetPtr {
     buttonSetHasFrame(button, hasFrame: false)
     buttonSetChild(button, child: row)
     setHExpand(button)
-    applyCss(button, "padding: 0; border-radius: 0;")
+
+    // Style: selected state gets accent highlight, normal is flat
+    if email.id == selectedEmail.value {
+        applyCss(button, "padding: 0; border-radius: 6px; margin: 2px 6px; background: rgba(0,136,255,0.15); border: 1px solid rgba(0,136,255,0.1);")
+    } else {
+        applyCss(button, "padding: 0; border-radius: 0; background: none;")
+    }
 
     // Click handler
     let handler = EmailClickHandler(emailId: email.id)
@@ -322,22 +362,27 @@ func buildMessagePreview(_ email: Email) -> WidgetPtr {
     boxAppend(fromRow, child: fromDetails)
 
     // Action buttons (right side of from row)
-    let actions = makeBox(GTK_ORIENTATION_HORIZONTAL, spacing: 4)
+    let actions = makeBox(GTK_ORIENTATION_HORIZONTAL, spacing: 6)
+    setVAlign(actions, align: GTK_ALIGN_CENTER)
 
-    let replyBtn = render(Button("Reply") { }.buttonStyle(.bordered))
+    let replyBtn = gtk_button_new_with_label("Reply")!
+    applyCss(replyBtn, "padding: 3px 10px; font-size: 0.85em; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);")
     boxAppend(actions, child: replyBtn)
 
-    let forwardBtn = render(Button("Forward") { }.buttonStyle(.bordered))
+    let forwardBtn = gtk_button_new_with_label("Forward")!
+    applyCss(forwardBtn, "padding: 3px 10px; font-size: 0.85em; border-radius: 6px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);")
     boxAppend(actions, child: forwardBtn)
 
     if email.isFlagged {
-        let flagChip = render(Chip("Flagged", color: .orange))
-        boxAppend(actions, child: flagChip)
+        let flagLabel = makeLabel("Flagged")
+        applyCss(flagLabel, "background: rgba(233,135,58,0.2); color: #E9873A; border-radius: 9999px; padding: 2px 8px; font-size: 0.75em; font-weight: 600;")
+        boxAppend(actions, child: flagLabel)
     }
 
     if email.hasAttachment {
-        let attachChip = render(Chip("Attachment", color: .blue))
-        boxAppend(actions, child: attachChip)
+        let attachLabel = makeLabel("1 Attachment")
+        applyCss(attachLabel, "background: rgba(0,136,255,0.15); color: #0088FF; border-radius: 9999px; padding: 2px 8px; font-size: 0.75em; font-weight: 600;")
+        boxAppend(actions, child: attachLabel)
     }
 
     boxAppend(fromRow, child: actions)
@@ -364,7 +409,7 @@ func buildMessagePreview(_ email: Email) -> WidgetPtr {
     gtk_text_view_set_right_margin(tv, 24)
     gtk_text_view_set_top_margin(tv, 16)
     gtk_text_view_set_bottom_margin(tv, 16)
-    applyCss(bodyText, "background: none; color: #dedede; font-size: 1.0em;")
+    applyCss(bodyText, "background: none; color: #dedede; font-size: 1.0em; line-height: 1.6;")
 
     let buffer = gtk_text_view_get_buffer(tv)
     gtk_text_buffer_set_text(buffer, email.body, Int32(email.body.utf8.count))
