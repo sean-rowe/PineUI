@@ -169,58 +169,39 @@ func buildContentArea() -> WidgetPtr {
         boxAppend(messageList, child: btn)
     }
 
-    // Apply initial selection
-    for (id, btn) in rowButtons {
-        if id == selectedEmail.value {
-            addCssClass(btn, "pine-mail-row-selected")
-        }
-    }
+    _ = rowButtons // kept for future use
 
     scrolledWindowSetChild(listScroll, child: messageList)
     boxAppend(listContainer, child: listScroll)
 
     gtk_paned_set_start_child(p, listContainer)
 
-    // Right: Message Preview
-    let previewWidget = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
-    setHExpand(previewWidget)
-    setVExpand(previewWidget)
+    // Right: Message Preview — use GtkStack to swap without layout shifts
+    let previewStack = gtk_stack_new()!
+    let stack = OpaquePointer(previewStack)
+    setHExpand(previewStack)
+    setVExpand(previewStack)
+    gtk_stack_set_transition_type(stack, GTK_STACK_TRANSITION_TYPE_NONE)
 
-    // Initial preview
-    let firstEmail = mockEmails.first(where: { $0.id == selectedEmail.value })
-    if let email = firstEmail {
-        let initialPreview = buildMessagePreview(email)
-        boxAppend(previewWidget, child: initialPreview)
+    // Pre-build ALL previews and add to stack
+    for email in mockEmails {
+        let preview = buildMessagePreview(email)
+        gtk_stack_add_named(stack, preview, "email-\(email.id)")
     }
 
-    var previewChild: WidgetPtr? = gtk_widget_get_first_child(previewWidget)
+    // Show initial selection
+    gtk_stack_set_visible_child_name(stack, "email-\(selectedEmail.value)")
+
     var lastSelectedId = selectedEmail.value
 
     selectedEmail.onChange = { emailId in
-        // Skip rebuild if clicking the same email
         guard emailId != lastSelectedId else { return }
         lastSelectedId = emailId
-
-        // 1. Swap selection CSS class (no list rebuild — no jump)
-        for (id, btn) in rowButtons {
-            if id == emailId {
-                gtk_widget_add_css_class(btn, "pine-mail-row-selected")
-            } else {
-                gtk_widget_remove_css_class(btn, "pine-mail-row-selected")
-            }
-        }
-
-        // 2. Rebuild preview — build new BEFORE removing old to prevent resize flicker
-        if let email = mockEmails.first(where: { $0.id == emailId }) {
-            let prevParent: UnsafeMutablePointer<_GtkBox> = typed(previewWidget)
-            let newPreview = buildMessagePreview(email)
-            gtk_box_append(prevParent, newPreview)
-            if let old = previewChild { gtk_box_remove(prevParent, old) }
-            previewChild = newPreview
-        }
+        // Just switch the visible child — no widget creation/destruction
+        gtk_stack_set_visible_child_name(stack, "email-\(emailId)")
     }
 
-    gtk_paned_set_end_child(p, previewWidget)
+    gtk_paned_set_end_child(p, previewStack)
     gtk_paned_set_position(p, 340)
 
     return paned
