@@ -48,6 +48,16 @@ public enum RedactionReason {
 
 extension View {
 
+    // MARK: 0. foregroundStyle (generic View version)
+
+    /// Sets the foreground style via CSS color. Generic version for any View.
+    /// Text has its own per-type foregroundStyle that accepts ForegroundStyle enum.
+    public func foregroundStyle(_ color: Color) -> ModifiedView<Self> {
+        ModifiedView(content: self) { w in
+            applyCss(w, "color: \(color.cssValue);")
+        }
+    }
+
     // MARK: 1. tint
 
     /// Sets the tint (foreground accent) color via CSS `color`.
