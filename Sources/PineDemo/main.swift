@@ -221,6 +221,29 @@ func layoutTab() -> some View {
                     .padding(4)
                 }
             }
+
+            GroupBox("GeometryReader") {
+                GeometryReader { proxy in
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("GeometryReader")
+                            .font(.headline)
+                        Text(String(format: "Allocated width:  %.0f pt", proxy.size.width))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(String(format: "Allocated height: %.0f pt", proxy.size.height))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        // Fill 50% of the available width with a colored bar.
+                        ColorView(.accentColor)
+                            .frame(width: Int32(proxy.size.width / 2), height: 8)
+                            .cornerRadius(4)
+                    }
+                    .padding(8)
+                }
+                .frame(height: 100)
+                .background(Color.blue.opacity(0.05))
+                .cornerRadius(8)
+            }
         }
         .padding()
     }
@@ -911,39 +934,69 @@ func advancedTab() -> some View {
                 }
             }
 
-            GroupBox("VSplitView") {
-                VSplitView(position: 100) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Top pane").font(.headline)
-                        Text("Drag to resize").font(.caption)
+            Group {
+                GroupBox("VSplitView") {
+                    VSplitView(position: 100) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Top pane").font(.headline)
+                            Text("Drag to resize").font(.caption)
+                        }
+                        .padding()
+                    } bottom: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Bottom pane").font(.headline)
+                            Text("Independent scroll area").font(.caption)
+                        }
+                        .padding()
                     }
-                    .padding()
-                } bottom: {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Bottom pane").font(.headline)
-                        Text("Independent scroll area").font(.caption)
-                    }
-                    .padding()
+                    .frame(height: 200)
                 }
-                .frame(height: 200)
-            }
 
-            GroupBox("ContentUnavailableView") {
-                ContentUnavailableView(
-                    "No Data Available",
-                    systemImage: "externaldrive.badge.xmark",
-                    description: "Connect a data source to view results here."
-                )
-            }
+                GroupBox("ContentUnavailableView") {
+                    ContentUnavailableView(
+                        "No Data Available",
+                        systemImage: "externaldrive.badge.xmark",
+                        description: "Connect a data source to view results here."
+                    )
+                }
 
-            GroupBox("EmptyView & Group") {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Group with EmptyView:")
-                    Group {
-                        Text("Grouped item A")
-                        Text("Grouped item B")
-                        EmptyView()
-                        Text("Grouped item C (EmptyView skipped)")
+                GroupBox("EmptyView & Group") {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Group with EmptyView:")
+                        Group {
+                            Text("Grouped item A")
+                            Text("Grouped item B")
+                            EmptyView()
+                            Text("Grouped item C (EmptyView skipped)")
+                        }
+                    }
+                }
+
+                GroupBox("Drag and Drop (string payload)") {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Drag any colored tile onto the drop zone below.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        HStack(spacing: 12) {
+                            ForEach(["Swift", "GTK4", "Linux"]) { label in
+                                Text(label)
+                                    .padding(8)
+                                    .background(Color.accentColor.opacity(0.2))
+                                    .cornerRadius(8)
+                                    .draggable(label)
+                            }
+                        }
+
+                        Text("Drop zone")
+                            .frame(width: 300, height: 60)
+                            .background(Color.gray.opacity(0.12))
+                            .cornerRadius(8)
+                            .border(.gray, width: 1)
+                            .dropDestination(for: String.self) { items, _ in
+                                // In a real app: update state with items.first
+                                return true
+                            }
                     }
                 }
             }

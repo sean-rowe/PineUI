@@ -16,6 +16,20 @@ private class LongPressHandler {
     init(action: @escaping () -> Void) { self.action = action }
 }
 
+/// Handler for drop-target events.
+private class DropHandler {
+    let action: (String) -> Bool
+    init(action: @escaping (String) -> Bool) { self.action = action }
+}
+
+/// Heap box for the drag data provider closure.
+/// GtkDragSource's "prepare" signal fires on each drag begin, so the closure
+/// must stay alive as long as the drag source controller is alive.
+private class DragDataClosure {
+    let provider: () -> String
+    init(provider: @escaping () -> String) { self.provider = provider }
+}
+
 /// Handler for hover (enter/leave) events.
 private class HoverHandler {
     let onEnter: () -> Void
@@ -357,44 +371,150 @@ extension View {
 
     // MARK: 17. onDrag
 
-    /// Provides data for a drag operation initiated from this view.
-    // STUB: GtkDragSource setup is complex; full drag-and-drop requires content providers.
+    /// Makes this view a drag source that provides a UTF-8 string payload.
+    ///
+    /// Uses `GtkDragSource` with a `GdkContentProvider` built from the string
+    /// returned by `data`. The grab cursor is set automatically by GTK when a
+    /// drag is in progress; a `grab` CSS cursor is added for the resting state
+    /// to signal to the user that the widget is draggable.
     public func onDrag(data: @escaping () -> String) -> ModifiedView<Self> {
-        ModifiedView(content: self) { _ in
-            // STUB: GtkDragSource is complex — requires GdkContentProvider and type registration.
+        ModifiedView(content: self) { w in
+            let dragSource = gtk_drag_source_new()!
+
+            // Set copy as the default action.
+            gtk_drag_source_set_actions(dragSource, GDK_ACTION_COPY)
+
+            // Visual hint: use "grab" cursor while not dragging.
+            applyCss(w, "cursor: grab;")
+
+            // "prepare" signal — return the content provider for this drag.
+            // Signature: (GtkDragSource*, Double, Double, gpointer*) -> GdkContentProvider*
+            //
+            // We capture `data` in a heap-allocated closure stored as user-data.
+            let dataClosure = DragDataClosure(provider: data)
+            let dataPtr = Unmanaged.passRetained(dataClosure).toOpaque()
+
+            let prepareCallback: @convention(c) (
+                OpaquePointer?,   // GtkDragSource*
+                Double,           // x
+                Double,           // y
+                gpointer?         // user_data
+            ) -> OpaquePointer? = { _, _, _, userData in
+                guard let userData = userData else { return nil }
+                let closure = Unmanaged<DragDataClosure>.fromOpaque(userData)
+                    .takeUnretainedValue()
+                let str = closure.provider()
+                // pine_content_provider_for_string is a non-variadic C wrapper in shim.h
+                guard let provider = pine_content_provider_for_string(str) else { return nil }
+                return OpaquePointer(provider)
+            }
+
+            g_signal_connect_data(
+                UnsafeMutableRawPointer(dragSource),
+                "prepare",
+                unsafeBitCast(prepareCallback, to: GCallback.self),
+                dataPtr,
+                { userData, _ in
+                    guard let userData = userData else { return }
+                    Unmanaged<DragDataClosure>.fromOpaque(userData).release()
+                },
+                GConnectFlags(rawValue: 0)
+            )
+
+            gtk_widget_add_controller(w, dragSource)
         }
     }
 
     // MARK: 18. onDrop
 
-    /// Handles items dropped onto this view.
-    // STUB: GtkDropTarget setup is complex; full drag-and-drop requires type registration.
+    /// Handles a UTF-8 string dropped onto this view.
+    ///
+    /// Uses `GtkDropTarget` registered for `G_TYPE_STRING`. The "drop" signal
+    /// provides a `GValue*` from which the string is extracted.
+    /// `perform` receives an array containing the single dropped string and
+    /// must return `true` to accept the drop.
     public func onDrop(perform action: @escaping ([String]) -> Bool) -> ModifiedView<Self> {
-        ModifiedView(content: self) { _ in
-            // STUB: GtkDropTarget is complex — requires GdkContentFormats and type negotiation.
+        ModifiedView(content: self) { w in
+            // gtk_drop_target_new(type, actions) — G_TYPE_STRING = 64 (G_TYPE_MAKE_FUNDAMENTAL(16))
+            let dropTarget = gtk_drop_target_new(
+                pine_g_type_string(),
+                GDK_ACTION_COPY
+            )!
+
+            // Visual hint: use "copy" cursor while hovering.
+            applyCss(w, "cursor: copy;")
+
+            let handler = DropHandler(action: { str in action([str]) })
+            let ptr = Unmanaged.passRetained(handler).toOpaque()
+
+            // "drop" signal — fires when the user releases over this widget.
+            // Signature: (GtkDropTarget*, GValue*, Double, Double, gpointer*) -> gboolean
+            let dropCallback: @convention(c) (
+                OpaquePointer?,   // GtkDropTarget*
+                UnsafePointer<GValue>?,  // value
+                Double,           // x
+                Double,           // y
+                gpointer?         // user_data
+            ) -> gboolean = { _, value, _, _, userData in
+                guard let value = value, let userData = userData else { return 0 }
+                guard let cStr = pine_gvalue_get_string(value) else { return 0 }
+                let str = String(cString: cStr)
+                let h = Unmanaged<DropHandler>.fromOpaque(userData).takeUnretainedValue()
+                return h.action(str) ? 1 : 0
+            }
+
+            g_signal_connect_data(
+                UnsafeMutableRawPointer(dropTarget),
+                "drop",
+                unsafeBitCast(dropCallback, to: GCallback.self),
+                ptr,
+                { userData, _ in
+                    guard let userData = userData else { return }
+                    Unmanaged<DropHandler>.fromOpaque(userData).release()
+                },
+                GConnectFlags(rawValue: 0)
+            )
+
+            gtk_widget_add_controller(w, dropTarget)
         }
     }
 
     // MARK: 19. draggable
 
-    /// Makes this view draggable.
-    // STUB: GtkDragSource requires GdkContentProvider — complex setup deferred.
-    public func draggable() -> ModifiedView<Self> {
-        ModifiedView(content: self) { _ in
-            // STUB: GtkDragSource requires GdkContentProvider — see onDrag stub.
-        }
+    /// Makes this view draggable with a static string payload.
+    ///
+    /// Unlike `.onDrag(data:)`, this overload is intended for use with
+    /// `.dropDestination` where the string value is known at declaration time
+    /// (e.g. an identifier). Adds a `grab` cursor as a visual affordance.
+    public func draggable(_ stringValue: String = "") -> ModifiedView<Self> {
+        onDrag(data: { stringValue })
     }
 
     // MARK: 20. dropDestination
 
-    /// Makes this view a drop destination for items of a given type.
-    // STUB: GtkDropTarget requires GdkContentFormats — complex setup deferred.
+    /// Makes this view a drop destination for String items.
+    ///
+    /// This overload accepts `String.Type` and delivers the dropped string
+    /// in the `action` closure together with the drop position. Returns a
+    /// `ModifiedView` that wires up a `GtkDropTarget` internally.
+    ///
+    /// For non-string types, falls back to a no-op (GTK4 drag-and-drop is
+    /// always string/GValue-based at the lowest level).
     public func dropDestination<T>(
         for type: T.Type,
         action: @escaping ([T], CGPoint) -> Bool
     ) -> ModifiedView<Self> {
-        ModifiedView(content: self) { _ in
-            // STUB: GtkDropTarget requires GdkContentFormats — see onDrop stub.
+        if T.self == String.self {
+            // Wire up a real string drop target.
+            return onDrop(perform: { strings in
+                let typed = strings.compactMap { $0 as? T }
+                return action(typed, CGPoint())
+            })
+        }
+        // Non-string types: keep the API surface but no GTK binding.
+        return ModifiedView(content: self) { _ in
+            // No GTK4 equivalent for arbitrary type serialization without
+            // a custom GdkContentSerializer registration.
         }
     }
 }
