@@ -109,3 +109,35 @@ static inline const char *pine_gvalue_get_string(const GValue *value) {
 static inline GType pine_g_type_string(void) {
     return G_TYPE_STRING;
 }
+
+// MARK: - GtkPopover helpers (Swift can't use GTK_POPOVER() cast macro)
+
+/// Set whether the popover shows a pointing arrow.
+static inline void pine_popover_set_has_arrow(GtkWidget *popover, gboolean has_arrow) {
+    gtk_popover_set_has_arrow(GTK_POPOVER(popover), has_arrow);
+}
+
+/// Set the preferred position of the popover relative to its parent.
+static inline void pine_popover_set_position(GtkWidget *popover, GtkPositionType pos) {
+    gtk_popover_set_position(GTK_POPOVER(popover), pos);
+}
+
+/// Set the child widget of the popover.
+static inline void pine_popover_set_child(GtkWidget *popover, GtkWidget *child) {
+    gtk_popover_set_child(GTK_POPOVER(popover), child);
+}
+
+/// Show the popover with animation.
+static inline void pine_popover_popup(GtkWidget *popover) {
+    gtk_popover_popup(GTK_POPOVER(popover));
+}
+
+/// Hide the popover with animation.
+static inline void pine_popover_popdown(GtkWidget *popover) {
+    gtk_popover_popdown(GTK_POPOVER(popover));
+}
+
+/// Set whether the popover auto-hides when the user clicks outside it.
+static inline void pine_popover_set_autohide(GtkWidget *popover, gboolean autohide) {
+    gtk_popover_set_autohide(GTK_POPOVER(popover), autohide);
+}
