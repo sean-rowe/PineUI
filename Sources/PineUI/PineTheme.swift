@@ -17,6 +17,7 @@ public enum PineTheme {
         let css = """
         /* ═══════════════════════════════════════════════════════════════
            PineUI Liquid Glass Theme — macOS Tahoe Design Language
+           Colors sourced from the official MacTahoe GTK theme (dark mode)
            ═══════════════════════════════════════════════════════════════ */
 
         /* ── Global ── */
@@ -33,34 +34,37 @@ public enum PineTheme {
         .pine-subheadline { font-size: 0.9em; font-weight: 400; }
         .pine-body { font-size: 1.0em; }
         .pine-callout { font-size: 0.95em; }
-        .pine-caption { font-size: 0.85em; color: alpha(@window_fg_color, 0.55); }
-        .pine-caption2 { font-size: 0.75em; color: alpha(@window_fg_color, 0.45); }
-        .pine-footnote { font-size: 0.8em; color: alpha(@window_fg_color, 0.45); }
+        .pine-caption { font-size: 0.85em; color: rgba(222,222,222,0.55); }
+        .pine-caption2 { font-size: 0.75em; color: rgba(222,222,222,0.45); }
+        .pine-footnote { font-size: 0.8em; color: rgba(222,222,222,0.45); }
         .pine-bold { font-weight: 700; }
 
         /* ── Foreground styles ── */
-        .pine-fg-primary { color: @window_fg_color; }
-        .pine-fg-secondary { color: alpha(@window_fg_color, 0.55); }
-        .pine-fg-tertiary { color: alpha(@window_fg_color, 0.35); }
-        .pine-fg-quaternary { color: alpha(@window_fg_color, 0.2); }
-        .pine-fg-accent { color: @accent_bg_color; }
+        /* fg_color: #dedede */
+        .pine-fg-primary { color: #dedede; }
+        .pine-fg-secondary { color: rgba(222,222,222,0.55); }
+        .pine-fg-tertiary { color: rgba(222,222,222,0.35); }
+        .pine-fg-quaternary { color: rgba(222,222,222,0.2); }
+        .pine-fg-accent { color: #0088FF; }
 
         /* ═══════════════════════════════════════════════════════════════
            Liquid Glass Surfaces
            ═══════════════════════════════════════════════════════════════ */
 
         /* ── Sidebar — translucent glass panel ── */
+        /* sidebar_bg: rgba(#282828, 0.85) */
         .pine-sidebar {
-            background: alpha(@window_bg_color, 0.65);
-            border-right: 1px solid alpha(@borders, 0.15);
+            background: rgba(40,40,40,0.85);
+            border-right: 1px solid rgba(255,255,255,0.1);
             padding-top: 8px;
         }
 
+        /* hint_fg_color: #999999 */
         .pine-sidebar-section-header {
             font-size: 0.7em;
             font-weight: 700;
             text-transform: uppercase;
-            color: alpha(@window_fg_color, 0.4);
+            color: #999999;
             padding: 16px 16px 4px 16px;
             letter-spacing: 0.8px;
         }
@@ -73,20 +77,22 @@ public enum PineTheme {
             border: 1px solid transparent;
         }
 
+        /* sidebar_highlight: rgba(white, 0.06) */
         .pine-sidebar-item:hover {
-            background: alpha(@accent_bg_color, 0.08);
-            border: 1px solid alpha(@accent_bg_color, 0.06);
+            background: rgba(255,255,255,0.06);
+            border: 1px solid transparent;
         }
 
+        /* selected_bg: #0088FF at 0.15 opacity */
         .pine-sidebar-item-active {
-            background: alpha(@accent_bg_color, 0.15);
-            border: 1px solid alpha(@accent_bg_color, 0.1);
-            box-shadow: 0 1px 3px alpha(black, 0.08);
+            background: rgba(0,136,255,0.15);
+            border: 1px solid rgba(0,136,255,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
 
         .pine-sidebar-badge {
-            background: alpha(@window_fg_color, 0.1);
-            color: alpha(@window_fg_color, 0.6);
+            background: rgba(222,222,222,0.1);
+            color: rgba(222,222,222,0.6);
             border-radius: 10px;
             padding: 0px 7px;
             font-size: 0.78em;
@@ -97,24 +103,27 @@ public enum PineTheme {
         .pine-sidebar-list { padding-bottom: 12px; }
 
         /* ── Toolbar — floating glass bar ── */
+        /* header_bg: #1e1e1e at 0.85 opacity */
         .pine-toolbar {
-            background: alpha(@headerbar_bg_color, 0.7);
-            border-bottom: 1px solid alpha(@borders, 0.15);
+            background: rgba(30,30,30,0.85);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             min-height: 38px;
-            box-shadow: 0 1px 4px alpha(black, 0.06);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
 
         /* ── Status Bar — subtle glass footer ── */
+        /* base_color: #242424 at 0.85 opacity */
         .pine-status-bar {
             padding: 3px 16px;
-            background: alpha(@window_bg_color, 0.75);
-            border-top: 1px solid alpha(@borders, 0.12);
+            background: rgba(36,36,36,0.85);
+            border-top: 1px solid rgba(255,255,255,0.08);
             min-height: 22px;
         }
 
+        /* hint_fg_color: #999999 */
         .pine-status-label {
             font-size: 0.78em;
-            color: alpha(@window_fg_color, 0.5);
+            color: #999999;
         }
 
         /* ═══════════════════════════════════════════════════════════════
@@ -122,17 +131,17 @@ public enum PineTheme {
            ═══════════════════════════════════════════════════════════════ */
 
         .pine-card {
-            background: alpha(white, 0.04);
+            background: rgba(255,255,255,0.04);
             border-radius: 12px;
-            border: 1px solid alpha(white, 0.08);
-            box-shadow: 0 2px 8px alpha(black, 0.08),
-                        inset 0 1px 0 alpha(white, 0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08),
+                        inset 0 1px 0 rgba(255,255,255,0.05);
         }
 
         .pine-card-header {
-            background: alpha(white, 0.03);
+            background: rgba(255,255,255,0.03);
             border-radius: 12px 12px 0 0;
-            border-bottom: 1px solid alpha(white, 0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             padding: 10px 16px;
         }
 
@@ -148,11 +157,11 @@ public enum PineTheme {
         .pine-list-inset-grouped {
             margin: 8px;
             border-radius: 12px;
-            background: alpha(white, 0.03);
-            border: 1px solid alpha(white, 0.06);
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
         }
         .pine-list-bordered {
-            border: 1px solid alpha(@borders, 0.2);
+            border: 1px solid rgba(255,255,255,0.12);
             border-radius: 12px;
         }
 
@@ -163,77 +172,95 @@ public enum PineTheme {
            Buttons — Liquid Glass pill buttons
            ═══════════════════════════════════════════════════════════════ */
 
+        /* button_bg: rgba(white, 0.06) */
         .pine-btn {
             border-radius: 8px;
-            border: 1px solid alpha(@borders, 0.15);
-            box-shadow: 0 1px 2px alpha(black, 0.05);
+            background: rgba(255,255,255,0.06);
+            border: none;
         }
 
+        /* button_hover_bg: rgba(white, 0.1) */
         .pine-btn:hover {
-            box-shadow: 0 2px 6px alpha(black, 0.1);
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 8px 26px rgba(0,0,0,0.2),
+                        inset 1px 2px 1px -1px rgba(255,255,255,0.08),
+                        inset -1px -1px 1px 0 rgba(255,255,255,0.08);
+        }
+
+        /* button_active_bg: rgba(white, 0.25) */
+        .pine-btn:active {
+            background: rgba(255,255,255,0.25);
         }
 
         .pine-btn-bordered {
             border-radius: 8px;
-            border: 1px solid alpha(@borders, 0.35);
-            background: alpha(white, 0.04);
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.04);
         }
 
         .pine-btn-bordered:hover {
-            background: alpha(white, 0.08);
+            background: rgba(255,255,255,0.1);
         }
 
         /* Glass button style (Tahoe .glass / .glassProminent) */
         .pine-btn-glass {
             border-radius: 20px;
-            background: alpha(white, 0.12);
-            border: 1px solid alpha(white, 0.2);
-            box-shadow: 0 2px 8px alpha(black, 0.1),
-                        inset 0 1px 0 alpha(white, 0.15);
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12),
+                        inset 0 1px 0 rgba(255,255,255,0.1);
             padding: 6px 16px;
         }
 
         .pine-btn-glass:hover {
-            background: alpha(white, 0.18);
-            box-shadow: 0 4px 12px alpha(black, 0.15),
-                        inset 0 1px 0 alpha(white, 0.2);
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 8px 26px rgba(0,0,0,0.2),
+                        inset 1px 2px 1px -1px rgba(255,255,255,0.08),
+                        inset -1px -1px 1px 0 rgba(255,255,255,0.08);
         }
 
+        /* suggested: #0088FF */
         .pine-btn-glass-prominent {
             border-radius: 20px;
-            background: alpha(@accent_bg_color, 0.8);
-            border: 1px solid alpha(@accent_bg_color, 0.3);
-            box-shadow: 0 2px 8px alpha(@accent_bg_color, 0.25),
-                        inset 0 1px 0 alpha(white, 0.2);
+            background: #0088FF;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,136,255,0.25),
+                        inset 0 1px 0 rgba(255,255,255,0.2);
             color: white;
             padding: 6px 16px;
         }
 
         .pine-btn-glass-prominent:hover {
-            background: @accent_bg_color;
-            box-shadow: 0 4px 16px alpha(@accent_bg_color, 0.35),
-                        inset 0 1px 0 alpha(white, 0.25);
+            background: #0088FF;
+            box-shadow: 0 4px 16px rgba(0,136,255,0.35),
+                        inset 0 1px 0 rgba(255,255,255,0.25);
         }
 
         /* ── Suggested/destructive action buttons (Adwaita overrides) ── */
+        /* suggested: #0088FF, destructive: #ED5F5D */
         .suggested-action {
+            background: #0088FF;
+            color: white;
             border-radius: 20px;
-            box-shadow: 0 2px 8px alpha(@accent_bg_color, 0.2);
+            box-shadow: 0 2px 8px rgba(0,136,255,0.2);
         }
 
         .destructive-action {
+            background: #ED5F5D;
+            color: white;
             border-radius: 20px;
-            box-shadow: 0 2px 8px alpha(red, 0.2);
+            box-shadow: 0 2px 8px rgba(237,95,93,0.2);
         }
 
         /* ═══════════════════════════════════════════════════════════════
            Text & Editor
            ═══════════════════════════════════════════════════════════════ */
 
+        /* entry_bg: rgba(white, 0.06) */
         .pine-text-editor {
-            background: alpha(white, 0.03);
+            background: rgba(255,255,255,0.06);
             border-radius: 8px;
-            border: 1px solid alpha(@borders, 0.1);
+            border: 1px solid rgba(255,255,255,0.12);
         }
 
         /* ── Disclosure group ── */
@@ -243,8 +270,9 @@ public enum PineTheme {
         }
 
         /* ── Level bar (Gauge) ── */
+        /* accent: #0088FF */
         levelbar block.filled {
-            background: @accent_bg_color;
+            background: #0088FF;
             border-radius: 4px;
         }
 
@@ -252,17 +280,18 @@ public enum PineTheme {
            Table
            ═══════════════════════════════════════════════════════════════ */
 
+        /* table header: bg rgba(#282828, 0.6) */
         .pine-table-header {
-            font-weight: 700;
+            font-weight: 600;
             font-size: 0.85em;
-            color: alpha(@window_fg_color, 0.55);
-            background: alpha(@window_bg_color, 0.6);
-            border-bottom: 1px solid alpha(@borders, 0.15);
+            color: rgba(222,222,222,0.55);
+            background: rgba(40,40,40,0.6);
+            border-bottom: 1px solid rgba(255,255,255,0.12);
             padding: 6px 8px;
         }
 
         .pine-table-alt-row {
-            background: alpha(white, 0.02);
+            background: rgba(255,255,255,0.02);
         }
 
         /* ═══════════════════════════════════════════════════════════════
@@ -270,27 +299,30 @@ public enum PineTheme {
            ═══════════════════════════════════════════════════════════════ */
 
         /* Glass surface — apply to any widget */
+        /* pine-glass: rgba(white, 0.08), border rgba(white, 0.12), shadow */
         .pine-glass {
-            background: alpha(white, 0.12);
-            border: 1px solid alpha(white, 0.2);
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
             border-radius: 16px;
-            box-shadow: 0 4px 16px alpha(black, 0.1),
-                        inset 0 1px 0 alpha(white, 0.15);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12),
+                        inset 0 1px 0 rgba(255,255,255,0.1);
         }
 
+        /* pine-glass-clear: rgba(white, 0.04) */
         .pine-glass-clear {
-            background: alpha(white, 0.06);
-            border: 1px solid alpha(white, 0.1);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 16px;
-            box-shadow: 0 2px 8px alpha(black, 0.06);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
 
+        /* pine-glass-tinted: rgba(#0088FF, 0.1), border rgba(#0088FF, 0.12) */
         .pine-glass-tinted {
-            background: alpha(@accent_bg_color, 0.12);
-            border: 1px solid alpha(@accent_bg_color, 0.15);
+            background: rgba(0,136,255,0.1);
+            border: 1px solid rgba(0,136,255,0.12);
             border-radius: 16px;
-            box-shadow: 0 4px 16px alpha(@accent_bg_color, 0.08),
-                        inset 0 1px 0 alpha(white, 0.1);
+            box-shadow: 0 4px 16px rgba(0,136,255,0.08),
+                        inset 0 1px 0 rgba(255,255,255,0.1);
         }
 
         /* ── Tab view — glass tabs ── */
@@ -301,8 +333,8 @@ public enum PineTheme {
         }
 
         notebook header tab:checked {
-            background: alpha(white, 0.1);
-            box-shadow: 0 1px 4px alpha(black, 0.08);
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
         }
 
         /* ── Switch / Toggle — glass pill ── */
@@ -314,93 +346,100 @@ public enum PineTheme {
 
         switch slider {
             border-radius: 12px;
-            box-shadow: 0 1px 3px alpha(black, 0.15);
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
         }
 
         /* ── Entry / TextField — glass input ── */
+        /* entry_bg: rgba(white, 0.06), border: rgba(white, 0.12) */
         entry {
             border-radius: 8px;
-            border: 1px solid alpha(@borders, 0.2);
-            background: alpha(white, 0.04);
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.06);
             min-height: 30px;
         }
 
+        /* focus: accent #0088FF, glow rgba(#0088FF, 0.25) */
         entry:focus {
-            border-color: @accent_bg_color;
-            box-shadow: 0 0 0 2px alpha(@accent_bg_color, 0.2);
+            border-color: #0088FF;
+            box-shadow: 0 0 0 2px rgba(0,136,255,0.25);
         }
 
         /* ── Dropdown — glass picker ── */
         dropdown button {
             border-radius: 8px;
-            border: 1px solid alpha(@borders, 0.2);
-            background: alpha(white, 0.04);
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.06);
         }
 
         /* ── Scale / Slider — glass track ── */
+        /* track: rgba(white, 0.06), fill: #0088FF, thumb: white 18x18 */
         scale trough {
             border-radius: 4px;
-            background: alpha(white, 0.06);
+            background: rgba(255,255,255,0.06);
             min-height: 4px;
         }
 
         scale highlight {
             border-radius: 4px;
-            background: @accent_bg_color;
+            background: #0088FF;
         }
 
         scale slider {
             border-radius: 50%;
             background: white;
-            box-shadow: 0 1px 4px alpha(black, 0.2);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
             min-width: 18px;
             min-height: 18px;
         }
 
         /* ── Popover — glass floating panel ── */
+        /* menu_bg: rgba(#333333, 0.92), base_color: #242424 */
         popover contents {
             border-radius: 12px;
-            background: alpha(@window_bg_color, 0.85);
-            border: 1px solid alpha(white, 0.1);
-            box-shadow: 0 8px 32px alpha(black, 0.2);
+            background: rgba(36,36,36,0.92);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             padding: 4px;
         }
 
         /* ── Scrollbar — thin overlay style ── */
+        /* bg: rgba(white, 0.25), hover: rgba(white, 0.4) */
         scrollbar slider {
             border-radius: 8px;
             min-width: 6px;
             min-height: 6px;
-            background: alpha(@window_fg_color, 0.25);
+            background: rgba(255,255,255,0.25);
         }
 
         scrollbar slider:hover {
-            background: alpha(@window_fg_color, 0.4);
+            background: rgba(255,255,255,0.4);
             min-width: 8px;
         }
 
         /* ── Progress bar — glass track ── */
+        /* track: rgba(white, 0.06), fill: #0088FF */
         progressbar trough {
             border-radius: 4px;
-            background: alpha(white, 0.06);
+            background: rgba(255,255,255,0.06);
             min-height: 4px;
         }
 
         progressbar progress {
             border-radius: 4px;
-            background: @accent_bg_color;
+            background: #0088FF;
         }
 
         /* ── Spinner ── */
         spinner {
-            color: @accent_bg_color;
+            color: #0088FF;
         }
 
         /* ── Calendar — glass date picker ── */
         calendar {
             border-radius: 12px;
-            border: 1px solid alpha(@borders, 0.15);
-            background: alpha(white, 0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03);
         }
 
         calendar day {
@@ -408,7 +447,7 @@ public enum PineTheme {
         }
 
         calendar day:selected {
-            background: @accent_bg_color;
+            background: #0088FF;
             color: white;
         }
 
@@ -423,7 +462,7 @@ public enum PineTheme {
 
         .linked button {
             border-radius: 0;
-            border-right: 1px solid alpha(@borders, 0.15);
+            border-right: 1px solid rgba(255,255,255,0.1);
         }
 
         .linked button:first-child {
