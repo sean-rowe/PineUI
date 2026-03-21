@@ -57,12 +57,7 @@ public enum SensoryFeedbackType {
     case success, warning, error, selection, impact, alignment
 }
 
-// MARK: - Namespace for matchedGeometryEffect
-
-/// A namespace for matched geometry effects (type identity only on Linux/GTK4).
-public class Namespace {
-    public init() {}
-}
+// Namespace is defined as a @propertyWrapper in PropertyWrappers.swift.
 
 // MARK: - Animation Modifiers
 
@@ -123,7 +118,7 @@ extension View {
     /// exist in GTK4's CSS model. No visual effect is applied.
     public func matchedGeometryEffect(
         id: AnyHashable,
-        in namespace: Namespace
+        in namespace: Namespace.ID
     ) -> ModifiedView<Self> {
         ModifiedView(content: self) { _ in
             // STUB: matched geometry requires a two-pass layout coordinator —

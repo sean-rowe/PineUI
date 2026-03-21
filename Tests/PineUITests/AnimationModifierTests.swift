@@ -142,14 +142,14 @@ final class AnimationModifierTests: XCTestCase {
     func testMatchedGeometryEffectReturnsModifiedView() {
         let v = TestView()
         let ns = Namespace()
-        let result = v.matchedGeometryEffect(id: "hero", in: ns)
+        let result = v.matchedGeometryEffect(id: "hero", in: ns.wrappedValue)
         let _: ModifiedView<TestView> = result
     }
 
     func testMatchedGeometryEffectWithIntIdReturnsModifiedView() {
         let v = TestView()
         let ns = Namespace()
-        let result = v.matchedGeometryEffect(id: 42, in: ns)
+        let result = v.matchedGeometryEffect(id: 42, in: ns.wrappedValue)
         let _: ModifiedView<TestView> = result
     }
 
