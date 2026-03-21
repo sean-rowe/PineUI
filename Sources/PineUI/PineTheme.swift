@@ -142,6 +142,19 @@ public enum PineTheme {
             min-height: 36px;
         }
 
+        /* ── Table ── */
+        .pine-table-header {
+            font-weight: 700;
+            font-size: 0.85em;
+            color: alpha(@window_fg_color, 0.6);
+            background: alpha(@window_bg_color, 0.8);
+            border-bottom: 1px solid alpha(@borders, 0.3);
+        }
+
+        .pine-table-alt-row {
+            background: alpha(white, 0.02);
+        }
+
         /* ── Window rounding ── */
         window { border-radius: 10px; }
         """
