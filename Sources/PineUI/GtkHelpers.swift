@@ -80,6 +80,7 @@ public func setVExpand(_ w: WidgetPtr, expand: Bool = true) { gtk_widget_set_vex
 public func setHAlign(_ w: WidgetPtr, align: GtkAlign) { gtk_widget_set_halign(w, align) }
 public func setVAlign(_ w: WidgetPtr, align: GtkAlign) { gtk_widget_set_valign(w, align) }
 public func addCssClass(_ w: WidgetPtr, _ name: String) { gtk_widget_add_css_class(w, name) }
+public func removeCssClass(_ w: WidgetPtr, _ name: String) { gtk_widget_remove_css_class(w, name) }
 public func setSizeRequest(_ w: WidgetPtr, width: Int32, height: Int32) { gtk_widget_set_size_request(w, width, height) }
 
 /// Apply inline CSS to a single widget via a per-widget CssProvider.
