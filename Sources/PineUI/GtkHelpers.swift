@@ -99,7 +99,15 @@ public func applyCss(_ w: WidgetPtr, _ css: String) {
     let key = UnsafeRawPointer(w)
 
     if var entry = widgetCssMap[key] {
-        entry.rules.append(css)
+        // Detect stale entries: if the widget doesn't have our CSS class, this is
+        // a new widget that was allocated at the same address as a destroyed one.
+        // Reset the rules to avoid accumulating garbage from the dead widget.
+        if gtk_widget_has_css_class(w, entry.className) == 0 {
+            entry.rules = [css]
+            addCssClass(w, entry.className)
+        } else {
+            entry.rules.append(css)
+        }
         widgetCssMap[key] = entry
         let merged = mergeCssRules(entry.rules)
         let fullCss = ".\(entry.className) { \(merged) }"
@@ -116,6 +124,30 @@ public func applyCss(_ w: WidgetPtr, _ css: String) {
         gtk_style_context_add_provider_for_display(display, OpaquePointer(provider), UInt32(GTK_STYLE_PROVIDER_PRIORITY_USER))
         addCssClass(w, className)
         widgetCssMap[key] = (provider: UnsafeMutableRawPointer(provider), rules: [css], className: className)
+    }
+}
+
+/// Replaces all CSS rules on a widget with a single new rule.
+/// Unlike applyCss which appends, this clears previous rules entirely.
+public func resetCss(_ w: WidgetPtr, _ css: String) {
+    let key = UnsafeRawPointer(w)
+
+    if var entry = widgetCssMap[key] {
+        entry.rules = [css]
+        widgetCssMap[key] = entry
+        let fullCss = ".\(entry.className) { \(css) }"
+        let p = entry.provider.assumingMemoryBound(to: GtkCssProvider.self)
+        gtk_css_provider_load_from_string(p, fullCss)
+        // Ensure the class is on the widget (may be a reused address).
+        if gtk_widget_has_css_class(w, entry.className) == 0 {
+            addCssClass(w, entry.className)
+        } else {
+            // Force GTK4 to re-evaluate styles by toggling the CSS class.
+            removeCssClass(w, entry.className)
+            addCssClass(w, entry.className)
+        }
+    } else {
+        applyCss(w, css)
     }
 }
 
