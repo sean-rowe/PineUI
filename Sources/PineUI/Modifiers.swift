@@ -120,6 +120,48 @@ extension View {
         }
     }
 
+    /// Fill the given `ClipShape` with the given color in one modifier.
+    ///
+    /// SwiftUI-equivalent of `.background(color, in: Capsule())` — combines
+    /// background-color and shape clipping so the color is bounded by the
+    /// shape's outline. Used heavily for pill buttons and badge-style UI.
+    public func background(_ color: Color, in shape: ClipShape) -> ModifiedView<Self> {
+        ModifiedView(content: self) { w in
+            applyCss(w, "background: \(color.cssValue);")
+            gtk_widget_set_overflow(w, GTK_OVERFLOW_HIDDEN)
+            switch shape {
+            case .circle:
+                applyCss(w, "border-radius: 50%;")
+            case .capsule:
+                applyCss(w, "border-radius: 9999px;")
+            case .roundedRectangle(let radius):
+                applyCss(w, "border-radius: \(radius)px;")
+            case .rectangle:
+                break
+            }
+        }
+    }
+
+    /// Fill the given `ClipShape` with the given material in one modifier.
+    ///
+    /// SwiftUI-equivalent of `.background(.regularMaterial, in: Rounded...)`.
+    public func background(_ material: Material, in shape: ClipShape) -> ModifiedView<Self> {
+        ModifiedView(content: self) { w in
+            applyCss(w, "background: \(material.cssValue);")
+            gtk_widget_set_overflow(w, GTK_OVERFLOW_HIDDEN)
+            switch shape {
+            case .circle:
+                applyCss(w, "border-radius: 50%;")
+            case .capsule:
+                applyCss(w, "border-radius: 9999px;")
+            case .roundedRectangle(let radius):
+                applyCss(w, "border-radius: \(radius)px;")
+            case .rectangle:
+                break
+            }
+        }
+    }
+
     /// Set a border via CSS.
     public func border(_ color: Color, width: Int32 = 1) -> ModifiedView<Self> {
         ModifiedView(content: self) { w in
@@ -203,10 +245,14 @@ public struct Color {
     public static let brown = Color(css: "rgb(162, 132, 94)")
     public static let clear = Color(css: "transparent")
 
-    // Semantic colors — use GTK theme variables.
+    // Semantic colors — use GTK theme variables. The grayscale hierarchy
+    // mirrors SwiftUI's 4-level foreground color system; alpha values
+    // approximate the visual weight of each tier on macOS.
     public static let accentColor = Color(css: "@accent_bg_color")
     public static let primary = Color(css: "@window_fg_color")
     public static let secondary = Color(css: "alpha(@window_fg_color, 0.6)")
+    public static let tertiary = Color(css: "alpha(@window_fg_color, 0.3)")
+    public static let quaternary = Color(css: "alpha(@window_fg_color, 0.2)")
 
     /// Adjust opacity.
     public func opacity(_ value: Double) -> Color {

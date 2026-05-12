@@ -236,6 +236,12 @@ public struct ReactiveText<Value>: View, GTKRenderable {
     let formatter: (Value) -> String
     var cssClasses: [String] = []
 
+    // Match Text.swift: chained Font modifiers (.weight, .monospaced,
+    // .italic) get captured here and applied as inline CSS in renderGTK.
+    var inlineFontWeight: FontWeight? = nil
+    var inlineFontDesign: FontDesign? = nil
+    var inlineItalic: Bool = false
+
     public init(state: StateStore<Value>, _ formatter: @escaping (Value) -> String) {
         self.state = state
         self.formatter = formatter
@@ -246,6 +252,15 @@ public struct ReactiveText<Value>: View, GTKRenderable {
     public func renderGTK() -> WidgetPtr {
         let label = makeLabel(formatter(state.value))
         for cls in cssClasses { addCssClass(label, cls) }
+        if let w = inlineFontWeight {
+            applyCss(label, "font-weight: \(w.rawValue);")
+        }
+        if let d = inlineFontDesign {
+            applyCss(label, "font-family: \(d.rawValue);")
+        }
+        if inlineItalic {
+            applyCss(label, "font-style: italic;")
+        }
 
         let labelPtr = label
         state.onChange = { newValue in
@@ -257,6 +272,9 @@ public struct ReactiveText<Value>: View, GTKRenderable {
     public func font(_ style: Font) -> ReactiveText {
         var copy = self
         copy.cssClasses.append(style.cssClass)
+        if let w = style.weight { copy.inlineFontWeight = w }
+        if let d = style.design { copy.inlineFontDesign = d }
+        if style.isItalic { copy.inlineItalic = true }
         return copy
     }
 
