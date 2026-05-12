@@ -67,6 +67,13 @@ extension View {
                 let current = width ?? -1
                 gtk_widget_set_size_request(w, current, height)
             }
+            // Explicit dimension overrides expand: an expand-by-default
+            // shape (Rectangle, Circle) constrained to a fixed size
+            // should NOT still claim unlimited room on the constrained
+            // axis. Otherwise the size-request floor loses to sibling
+            // widgets and the shape collapses to 0 on that axis.
+            if width != nil { gtk_widget_set_hexpand(w, 0) }
+            if height != nil { gtk_widget_set_vexpand(w, 0) }
             var css = ""
             if let width = width { css += "min-width: \(width)px;" }
             if let height = height { css += "min-height: \(height)px;" }
@@ -89,6 +96,10 @@ extension View {
                 let current = width ?? -1
                 gtk_widget_set_size_request(w, current, height)
             }
+            // See comment on the GtkAlign overload above — explicit
+            // dimension clears expand on that axis.
+            if width != nil { gtk_widget_set_hexpand(w, 0) }
+            if height != nil { gtk_widget_set_vexpand(w, 0) }
             var css = ""
             if let width = width { css += "min-width: \(width)px;" }
             if let height = height { css += "min-height: \(height)px;" }
