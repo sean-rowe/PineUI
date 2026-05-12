@@ -29,15 +29,48 @@ public struct ModifiedView<Content: View>: View, GTKRenderable {
 // MARK: - View extension for modifiers
 
 extension View {
-    /// Add padding around the view.
+    /// Add padding around the view. SwiftUI-compatible — adds INTERNAL
+    /// space that grows the widget's box, so subsequent .background() /
+    /// border-radius / clipShape modifiers cover the padded area.
+    ///
+    /// Implementation: emits CSS `padding: Npx;` on the widget rather
+    /// than calling gtk_widget_set_margin_* (which adds EXTERNAL space
+    /// outside the widget's CSS box). The CSS-padding semantic matches
+    /// SwiftUI and is what `.padding().background()` chains expect.
+    /// If you need external spacing instead, use `.spacing(_:)` below.
     public func padding(_ amount: Int32 = 12) -> ModifiedView<Self> {
+        ModifiedView(content: self) { w in
+            applyCss(w, "padding: \(amount)px;")
+        }
+    }
+
+    /// Add specific edge padding (CSS padding, internal to the widget).
+    public func padding(_ edges: Edge.Set, _ amount: Int32 = 12) -> ModifiedView<Self> {
+        ModifiedView(content: self) { w in
+            var css = ""
+            if edges.contains(.top) { css += "padding-top: \(amount)px;" }
+            if edges.contains(.bottom) { css += "padding-bottom: \(amount)px;" }
+            if edges.contains(.leading) { css += "padding-left: \(amount)px;" }
+            if edges.contains(.trailing) { css += "padding-right: \(amount)px;" }
+            if !css.isEmpty { applyCss(w, css) }
+        }
+    }
+
+    /// Add external spacing (GTK margin) around the view. Use when you
+    /// want the widget's CSS background/border to NOT extend into the
+    /// surrounding gap — the original PineUI .padding() behaviour.
+    /// SwiftUI's .padding() didn't distinguish; this helper exists for
+    /// cases where the GTK-native semantic is actually what you want
+    /// (e.g. inset a card from its parent without affecting the card's
+    /// own background).
+    public func spacing(_ amount: Int32 = 12) -> ModifiedView<Self> {
         ModifiedView(content: self) { w in
             setMargins(w, start: amount, end: amount, top: amount, bottom: amount)
         }
     }
 
-    /// Add specific edge padding.
-    public func padding(_ edges: Edge.Set, _ amount: Int32 = 12) -> ModifiedView<Self> {
+    /// Add external spacing on specific edges. See `.spacing(_:)` above.
+    public func spacing(_ edges: Edge.Set, _ amount: Int32 = 12) -> ModifiedView<Self> {
         ModifiedView(content: self) { w in
             if edges.contains(.leading) { gtk_widget_set_margin_start(w, amount) }
             if edges.contains(.trailing) { gtk_widget_set_margin_end(w, amount) }
