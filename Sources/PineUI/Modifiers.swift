@@ -48,6 +48,14 @@ extension View {
 
     /// Set the frame size. Low-level overload taking raw GtkAlign — keeps
     /// working for direct GTK4 callers.
+    ///
+    /// Internally sets BOTH gtk_widget_set_size_request (the layout hint)
+    /// AND CSS min-width/min-height (the hard floor). The size-request
+    /// alone is too weak for empty containers — e.g. a Circle backing
+    /// GtkBox with no children collapses to 0×0 even when given an 8×8
+    /// request, because GTK's allocator sees nothing to paint. The CSS
+    /// min-* properties force the widget to claim that area, which gives
+    /// the CSS background-color something to paint.
     public func frame(
         width: Int32? = nil,
         height: Int32? = nil,
@@ -59,6 +67,10 @@ extension View {
                 let current = width ?? -1
                 gtk_widget_set_size_request(w, current, height)
             }
+            var css = ""
+            if let width = width { css += "min-width: \(width)px;" }
+            if let height = height { css += "min-height: \(height)px;" }
+            if !css.isEmpty { applyCss(w, css) }
             gtk_widget_set_halign(w, alignment)
         }
     }
@@ -77,6 +89,10 @@ extension View {
                 let current = width ?? -1
                 gtk_widget_set_size_request(w, current, height)
             }
+            var css = ""
+            if let width = width { css += "min-width: \(width)px;" }
+            if let height = height { css += "min-height: \(height)px;" }
+            if !css.isEmpty { applyCss(w, css) }
             gtk_widget_set_halign(w, alignment.horizontalAlign)
             gtk_widget_set_valign(w, alignment.verticalAlign)
         }

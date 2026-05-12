@@ -92,7 +92,14 @@ public struct RoundedRectangle: Shape {
 
 /// A circle that maintains a 1:1 aspect ratio within its frame.
 ///
-/// Renders as a GtkBox with CSS aspect-ratio: 1 and border-radius: 50%.
+/// Renders as a GtkBox with CSS border-radius: 50%.
+///
+/// Does NOT request hexpand/vexpand — a 0-sized empty GtkBox with both
+/// expand flags collapses to invisible in mixed-content containers
+/// (e.g. an 8×8 indicator dot inside an HStack of text widgets). The
+/// `.frame(width:height:)` modifier is the canonical way to size a
+/// Circle; default size is the GTK widget request minimum (0×0) so
+/// without a frame the Circle is intentionally invisible.
 public struct Circle: Shape {
     public init() {}
 
@@ -102,8 +109,6 @@ public struct Circle: Shape {
 
     public func renderGTK() -> WidgetPtr {
         let box = makeBox(GTK_ORIENTATION_VERTICAL, spacing: 0)
-        setHExpand(box)
-        setVExpand(box)
         applyCss(box, "background: @accent_bg_color; border-radius: 50%;")
         return box
     }
