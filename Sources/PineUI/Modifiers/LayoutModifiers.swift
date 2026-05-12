@@ -29,22 +29,22 @@ extension View {
 
     // MARK: 1. overlay
 
-    /// Overlays a secondary view on top of this view.
+    /// Layers a secondary view on top of this view via GtkOverlay.
     ///
-    /// NOTE: Full GtkOverlay re-parenting is not used here since ModifiedView
-    /// applies the modifier after render. This stub applies the overlay widget
-    /// as a sibling appended immediately after in the parent box, approximating
-    /// the visual intent without complex re-parenting.
-    // STUB: no GTK4 equivalent for true overlay re-parenting in this architecture
+    /// SwiftUI-equivalent of `.overlay(alignment:) { ... }`. The overlay
+    /// content is positioned within the bounds of the base view using the
+    /// supplied two-axis `Alignment`. Both views render through PineUI's
+    /// normal pipeline; the wrapping container is a GtkOverlay (same
+    /// primitive ZStack uses), so visual layering behaves the same way.
+    ///
+    /// This returns a concrete `OverlayView` rather than a `ModifiedView`
+    /// because GtkOverlay must wrap children at construction time, which
+    /// doesn't fit ModifiedView's post-render application model.
     public func overlay<Overlay: View>(
-        alignment: HorizontalAlignment = .center,
+        alignment: Alignment = .center,
         @ViewBuilder content overlayContent: () -> Overlay
-    ) -> ModifiedView<Self> {
-        let _ = overlayContent() // capture for future use
-        return ModifiedView(content: self) { _ in
-            // STUB: no GTK4 equivalent — true overlay requires GtkOverlay as a container,
-            // which cannot wrap an already-rendered widget post-render.
-        }
+    ) -> OverlayView<Self, Overlay> {
+        OverlayView(base: self, overlay: overlayContent(), alignment: alignment)
     }
 
     // MARK: 2. shadow
@@ -260,6 +260,53 @@ extension View {
             if axes.contains(.horizontal) { gtk_widget_set_hexpand(w, 1) }
             if axes.contains(.vertical) { gtk_widget_set_vexpand(w, 1) }
         }
+    }
+}
+
+// MARK: - OverlayView
+
+/// Wraps a base view with one overlay view layered on top via GtkOverlay.
+/// Returned by `.overlay(alignment:content:)`. Not normally constructed
+/// directly — callers use the modifier.
+///
+/// Implementation note: this exists as its own view type rather than
+/// being a ModifiedView because GtkOverlay must wrap children at
+/// construction time (`gtk_overlay_set_child` + `gtk_overlay_add_overlay`).
+/// ModifiedView applies its closure after the base has already been
+/// rendered into a widget, which is the wrong moment to re-parent it
+/// into a different container.
+public struct OverlayView<Base: View, Overlay: View>: View, GTKRenderable {
+    let base: Base
+    let overlay: Overlay
+    let alignment: Alignment
+
+    public init(base: Base, overlay: Overlay, alignment: Alignment = .center) {
+        self.base = base
+        self.overlay = overlay
+        self.alignment = alignment
+    }
+
+    public var body: Never { fatalError() }
+
+    public func renderGTK() -> WidgetPtr {
+        let container = gtk_overlay_new()!
+        setHExpand(container)
+        setVExpand(container)
+
+        // Base = the GtkOverlay's main child. Expand it so the overlay's
+        // alignment is measured against the full container bounds.
+        let baseWidget = render(base)
+        setHExpand(baseWidget)
+        setVExpand(baseWidget)
+        gtk_overlay_set_child(OpaquePointer(container), baseWidget)
+
+        // Overlay = a child layered on top. Honor the supplied alignment.
+        let overlayWidget = render(overlay)
+        setHAlign(overlayWidget, align: alignment.horizontalAlign)
+        setVAlign(overlayWidget, align: alignment.verticalAlign)
+        gtk_overlay_add_overlay(OpaquePointer(container), overlayWidget)
+
+        return container
     }
 }
 

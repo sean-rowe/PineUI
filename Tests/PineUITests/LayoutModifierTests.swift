@@ -15,11 +15,15 @@ final class LayoutModifierTests: XCTestCase {
 
     // MARK: - 1. overlay
 
-    func testOverlayReturnsModifiedView() {
+    func testOverlayReturnsOverlayView() {
         let v = TestView()
         let result = v.overlay(alignment: .center) { TestView() }
-        // Verify the return type is ModifiedView<TestView>
-        let _: ModifiedView<TestView> = result
+        // overlay() now returns OverlayView<Base, Overlay> instead of
+        // ModifiedView<Base>. The old stub returned ModifiedView because
+        // it threw the overlay content away; the real implementation
+        // needs a dedicated view type so renderGTK can construct a
+        // GtkOverlay container at the right point in the render pipeline.
+        let _: OverlayView<TestView, TestView> = result
     }
 
     // MARK: - 2. shadow

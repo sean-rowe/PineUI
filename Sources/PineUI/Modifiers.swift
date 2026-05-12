@@ -46,7 +46,8 @@ extension View {
         }
     }
 
-    /// Set the frame size.
+    /// Set the frame size. Low-level overload taking raw GtkAlign — keeps
+    /// working for direct GTK4 callers.
     public func frame(
         width: Int32? = nil,
         height: Int32? = nil,
@@ -62,12 +63,57 @@ extension View {
         }
     }
 
+    /// SwiftUI-compatible frame overload. Sets width/height and aligns the
+    /// view within its allocated space using the existing two-axis
+    /// `Alignment` enum (defined in ZStack.swift).
+    public func frame(
+        width: Int32? = nil,
+        height: Int32? = nil,
+        alignment: Alignment
+    ) -> ModifiedView<Self> {
+        ModifiedView(content: self) { w in
+            if let width = width { gtk_widget_set_size_request(w, width, -1) }
+            if let height = height {
+                let current = width ?? -1
+                gtk_widget_set_size_request(w, current, height)
+            }
+            gtk_widget_set_halign(w, alignment.horizontalAlign)
+            gtk_widget_set_valign(w, alignment.verticalAlign)
+        }
+    }
+
     /// Set max width with expansion.
     public func frame(maxWidth: MaxDimension) -> ModifiedView<Self> {
         ModifiedView(content: self) { w in
             if case .infinity = maxWidth {
                 setHExpand(w)
             }
+        }
+    }
+
+    /// SwiftUI-compatible: set max width with expansion and align horizontally.
+    public func frame(
+        maxWidth: MaxDimension,
+        alignment: HorizontalAlignment
+    ) -> ModifiedView<Self> {
+        ModifiedView(content: self) { w in
+            if case .infinity = maxWidth {
+                setHExpand(w)
+            }
+            gtk_widget_set_halign(w, alignment.gtkAlign)
+        }
+    }
+
+    /// SwiftUI-compatible: set max height with expansion and align vertically.
+    public func frame(
+        maxHeight: MaxDimension,
+        alignment: VerticalAlignment
+    ) -> ModifiedView<Self> {
+        ModifiedView(content: self) { w in
+            if case .infinity = maxHeight {
+                setVExpand(w)
+            }
+            gtk_widget_set_valign(w, alignment.gtkAlign)
         }
     }
 
@@ -207,6 +253,13 @@ public enum Edge {
 public enum MaxDimension {
     case infinity
 }
+
+// Alignment types live elsewhere:
+//   - HorizontalAlignment / VerticalAlignment in Stacks.swift (used by
+//     VStack(alignment:) and HStack(alignment:))
+//   - Alignment (the 9-case 2D enum) in ZStack.swift (used by ZStack)
+// The SwiftUI-shaped frame(...) overloads below reuse those types so
+// there's a single source of truth for alignment values across PineUI.
 
 // MARK: - Color
 

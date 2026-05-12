@@ -12,16 +12,45 @@ public struct Button: View, GTKRenderable {
     let title: String
     let action: () -> Void
     var style: ButtonStyle = .default_
+    /// When non-nil, this builds the button's child widget instead of the
+    /// default text label. Used by the SwiftUI-style label-closure
+    /// initializer below. Deferred to render time so the label view's
+    /// own renderGTK happens at the right point in the render pass.
+    let customLabel: (() -> WidgetPtr)?
 
     public init(_ title: String, action: @escaping () -> Void) {
         self.title = title
         self.action = action
+        self.customLabel = nil
+    }
+
+    /// SwiftUI-style label-closure initializer:
+    ///     Button { onTap() } label: { Image(systemName: "doc.text") }
+    ///
+    /// `label` can be any View — Image, Text, HStack/VStack composites,
+    /// etc. — letting you build icon-only or custom-styled buttons. The
+    /// label View is rendered into a GTK widget at renderGTK time and
+    /// assigned via gtk_button_set_child.
+    public init<Label: View>(
+        action: @escaping () -> Void,
+        @ViewBuilder label: () -> Label
+    ) {
+        self.title = ""
+        self.action = action
+        let labelView = label()
+        self.customLabel = { render(labelView) }
     }
 
     public var body: Never { fatalError() }
 
     public func renderGTK() -> WidgetPtr {
-        let btn = gtk_button_new_with_label(title)!
+        let btn: WidgetPtr
+        if let customLabel {
+            btn = gtk_button_new()!
+            buttonSetChild(btn, child: customLabel())
+        } else {
+            btn = gtk_button_new_with_label(title)!
+        }
         addCssClass(btn, style.cssClass)
 
         // Connect click signal.
