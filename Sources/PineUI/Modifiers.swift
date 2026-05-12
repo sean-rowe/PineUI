@@ -231,6 +231,44 @@ extension View {
     }
 
     /// Set background color via CSS.
+    ///
+    /// Also sets `gtk_widget_set_overflow(w, GTK_OVERFLOW_HIDDEN)`. GTK4
+    /// layout widgets (GtkBox — i.e. HStack, VStack, ZStack) are
+    /// "no-window" passthroughs by default — they don't snapshot their
+    /// own allocation, so a CSS `background-color` set on them never
+    /// composites into the surface. Forcing overflow:hidden makes the
+    /// widget claim its allocation for painting; CSS background then
+    /// renders as expected.
+    ///
+    /// The side effect is that children get clipped to the widget's
+    /// bounds. SwiftUI's `.background()` doesn't clip by default, but
+    /// in practice the SwiftUI use cases (cards, rows, pills) want the
+    /// clipping behaviour and the no-clip variant is rare. If you need
+    /// unclipped overflow with a background, layer a `Rectangle().fill`
+    /// behind the content via ZStack instead.
+    /// Set background color via CSS.
+    ///
+    /// KNOWN LIMITATION on GTK4 layout containers: HStack / VStack /
+    /// ZStack widgets (GtkBox-based) do NOT reliably paint their CSS
+    /// background-color even when this modifier is applied, because
+    /// GTK4 layout widgets are "transparent passthrough" by default and
+    /// don't snapshot their allocation for painting. Investigation
+    /// (task #20): tried adding overflow:hidden, background-clip,
+    /// transparent borders, border-radius — none produced a visible
+    /// container background, while several caused layout regressions.
+    ///
+    /// What works today:
+    ///   - `.background(color, in: ClipShape)` — the shape variant
+    ///     reliably paints via clipShape's overflow+border-radius combo.
+    ///     Use `.background(color, in: .rectangle)` if you don't want
+    ///     rounded corners but still need a visible container fill.
+    ///   - Backgrounds on `Text` / `Image` widgets (GtkLabel-based)
+    ///     DO paint via this plain modifier — they're not the issue.
+    ///
+    /// For a container, prefer the in:Shape variant until a deeper
+    /// fix lands (likely re-architecting layout containers to wrap a
+    /// GtkFrame which does snapshot, or adopting GTK4's new
+    /// drawing-snapshot API).
     public func background(_ color: Color) -> ModifiedView<Self> {
         ModifiedView(content: self) { w in
             applyCss(w, "background: \(color.cssValue);")
