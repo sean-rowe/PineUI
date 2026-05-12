@@ -91,6 +91,17 @@ extension View {
         }
     }
 
+    /// Set max height with expansion. Parallel to frame(maxWidth:); kept
+    /// separate from the SwiftUI-Alignment overloads so callers can opt
+    /// in to vertical expansion without specifying alignment.
+    public func frame(maxHeight: MaxDimension) -> ModifiedView<Self> {
+        ModifiedView(content: self) { w in
+            if case .infinity = maxHeight {
+                setVExpand(w)
+            }
+        }
+    }
+
     /// SwiftUI-compatible: set max width with expansion and align horizontally.
     public func frame(
         maxWidth: MaxDimension,
