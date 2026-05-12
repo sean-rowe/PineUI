@@ -28,6 +28,7 @@ private let sfSymbolMap: [String: String] = [
     "sidebar.right": "view-dual-symbolic",
     "rectangle.split.3x1": "view-grid-symbolic",
     "square.grid.2x2": "view-grid-symbolic",
+    "square.grid.3x2": "view-grid-symbolic",
     "list.bullet": "view-list-symbolic",
     "list.dash": "view-list-symbolic",
     "line.3.horizontal": "view-list-symbolic",
@@ -186,8 +187,13 @@ private let sfSymbolMap: [String: String] = [
     "printer.fill": "printer-symbolic",
 
     // Misc
-    "tag": "tag-symbolic",
-    "tag.fill": "tag-symbolic",
+    //
+    // Where Adwaita lacks a 1:1 icon (no gavel, no heart-square, no tag,
+    // no person.crop.rectangle), pick the closest semantic neighbour
+    // rather than leave the mapping pointing at a name that GTK4 will
+    // fall back to image-missing for.
+    "tag": "bookmark-new-symbolic",
+    "tag.fill": "bookmark-new-symbolic",
     "pin": "view-pin-symbolic",
     "pin.fill": "view-pin-symbolic",
     "paintbrush": "applications-graphics-symbolic",
@@ -199,6 +205,60 @@ private let sfSymbolMap: [String: String] = [
     "chart.bar.fill": "org.gnome.PowerStats-symbolic",
     "map": "find-location-symbolic",
     "map.fill": "find-location-symbolic",
+
+    // Time / scheduling — FluidTime, calendar-recurring, "in progress".
+    // (clock / clock.fill / timer / alarm already mapped earlier;
+    //  only adding the arrow-circlepath variants here.)
+    "clock.arrow.circlepath": "preferences-system-time-symbolic",
+    "appointment.soon": "appointment-soon-symbolic",
+
+    // Code / development — Code Review, source files.
+    // (terminal / terminal.fill already mapped earlier.)
+    "chevron.left.forwardslash.chevron.right": "utilities-terminal-symbolic",
+    "curlybraces": "utilities-terminal-symbolic",
+    "ladybug": "application-x-executable-symbolic",
+    "ladybug.fill": "application-x-executable-symbolic",
+
+    // Warnings / blockers / stop indicators.
+    // (exclamationmark.triangle variants already mapped earlier.)
+    "exclamationmark.octagon": "process-stop-symbolic",
+    "exclamationmark.octagon.fill": "process-stop-symbolic",
+    "stop.circle": "process-stop-symbolic",
+    "stop.circle.fill": "process-stop-symbolic",
+
+    // Decisions / records / ADR / log.
+    //
+    // Adwaita has no gavel. Decisions get written down, so the
+    // text-editor icon is the closest semantic match.
+    "gavel": "accessories-text-editor-symbolic",
+    "doc.append": "x-office-document-symbolic",
+    "books.vertical": "folder-documents-symbolic",
+    "books.vertical.fill": "folder-documents-symbolic",
+
+    // Wellness / health / mood.
+    //
+    // No heart-square in Adwaita; dialog-information matches the
+    // "health info" intent. (heart / heart.fill already mapped earlier
+    // to emblem-favorite-symbolic.)
+    "heart.text.square": "dialog-information-symbolic",
+    "waveform.path.ecg": "dialog-information-symbolic",
+
+    // Invoicing / accounting — "doc.text.below.ecg" is Apple's SF Symbol
+    // for billing/invoice. Closest GNOME concept is the calculator.
+    "doc.text.below.ecg": "accessories-calculator-symbolic",
+    "creditcard": "accessories-calculator-symbolic",
+    "creditcard.fill": "accessories-calculator-symbolic",
+    "dollarsign.circle": "accessories-calculator-symbolic",
+
+    // People / contacts / career profiles.
+    "person.crop.rectangle": "system-users-symbolic",
+    "person.crop.rectangle.fill": "system-users-symbolic",
+    "person.crop.square": "system-users-symbolic",
+    "person.text.rectangle": "user-info-symbolic",
+    "person.crop.circle.badge": "user-info-symbolic",
+    "rectangle.stack.person.crop": "system-users-symbolic",
+    "graduationcap": "system-users-symbolic",
+    "graduationcap.fill": "system-users-symbolic",
 ]
 
 /// Resolve an SF Symbol name to a GTK icon name.
