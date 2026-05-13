@@ -248,30 +248,27 @@ extension View {
     /// behind the content via ZStack instead.
     /// Set background color via CSS.
     ///
-    /// KNOWN LIMITATION on GTK4 layout containers: HStack / VStack /
-    /// ZStack widgets (GtkBox-based) do NOT reliably paint their CSS
-    /// background-color even when this modifier is applied, because
-    /// GTK4 layout widgets are "transparent passthrough" by default and
-    /// don't snapshot their allocation for painting. Investigation
-    /// (task #20): tried adding overflow:hidden, background-clip,
-    /// transparent borders, border-radius — none produced a visible
-    /// container background, while several caused layout regressions.
+    /// Sets the background color on a view.
     ///
-    /// What works today:
-    ///   - `.background(color, in: ClipShape)` — the shape variant
-    ///     reliably paints via clipShape's overflow+border-radius combo.
-    ///     Use `.background(color, in: .rectangle)` if you don't want
-    ///     rounded corners but still need a visible container fill.
-    ///   - Backgrounds on `Text` / `Image` widgets (GtkLabel-based)
-    ///     DO paint via this plain modifier — they're not the issue.
+    /// GTK4 layout containers (HStack / VStack / ZStack — GtkBox-based)
+    /// are "transparent passthrough" by default: CSS `background` alone
+    /// doesn't trigger them to snapshot their allocation, so the colour
+    /// never paints. The fix that works (originally discovered via the
+    /// `.background(_:in:Shape)` codepath) is calling
+    /// `gtk_widget_set_overflow(w, GTK_OVERFLOW_HIDDEN)` — that forces
+    /// the box to claim its allocation and paint its background.
+    /// Earlier task #20 tried CSS-based workarounds (background-clip,
+    /// transparent borders, border-radius) and none worked; the
+    /// widget-level overflow call DOES work and is now applied here.
     ///
-    /// For a container, prefer the in:Shape variant until a deeper
-    /// fix lands (likely re-architecting layout containers to wrap a
-    /// GtkFrame which does snapshot, or adopting GTK4's new
-    /// drawing-snapshot API).
+    /// Side effect: overflow:hidden clips children to the widget bounds.
+    /// That's normal SwiftUI behaviour for `.background()` and matches
+    /// what `.background(_:in:Shape)` has been doing all along without
+    /// regressions in the views that use it.
     public func background(_ color: Color) -> ModifiedView<Self> {
         ModifiedView(content: self) { w in
             applyCss(w, "background: \(color.cssValue);")
+            gtk_widget_set_overflow(w, GTK_OVERFLOW_HIDDEN)
         }
     }
 
