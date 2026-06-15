@@ -27,6 +27,8 @@ private var activationHandler: ((UnsafeMutablePointer<GtkApplication>) -> Void)?
 func runGtkApp(appId: String, onActivate handler: @escaping (UnsafeMutablePointer<GtkApplication>) -> Void) {
     activationHandler = handler
 
+    // G_APPLICATION_DEFAULT_FLAGS is provided by GlibFlagEnumCompat.swift —
+    // glib 2.88's flag_enum attribute stopped Swift importing the C global names.
     let app = gtk_application_new(appId, G_APPLICATION_DEFAULT_FLAGS)!
 
     // Connect "activate" signal using g_signal_connect_data.
