@@ -34,10 +34,11 @@ public enum PineTheme {
             box-shadow: none;
         }
 
-        /* Window base */
+        /* Window base — Nimbus purple glass (design rgba(26,22,50,.78); near-
+           opaque here since app windows aren't compositor-blurred). */
         window {
-            background-color: #242424;
-            color: #dedede;
+            background-color: rgba(26,22,50,0.97);
+            color: #ece9ff;
         }
 
         /* Reset button Adwaita styling completely */
@@ -86,7 +87,7 @@ public enum PineTheme {
             padding: 0 8px;
         }
         entry:focus, searchentry:focus, passwordentry:focus {
-            box-shadow: inset 0 0 0 2px rgba(0,136,255,0.75);
+            box-shadow: inset 0 0 0 2px rgba(124,108,240,0.75);
         }
 
         /* Reset switch Adwaita styling */
@@ -99,7 +100,7 @@ public enum PineTheme {
             box-shadow: none;
         }
         switch:checked {
-            background: #0088FF;
+            background: #7c6cf0;
         }
         switch slider {
             background: white;
@@ -125,7 +126,7 @@ public enum PineTheme {
             box-shadow: none;
         }
         scale highlight {
-            background: #0088FF;
+            background: #7c6cf0;
             border-radius: 9999px;
             border: none;
         }
@@ -207,7 +208,7 @@ public enum PineTheme {
             min-height: 6px;
         }
         progressbar progress {
-            background: #0088FF;
+            background: #7c6cf0;
             border: none;
             border-radius: 9999px;
         }
@@ -219,7 +220,7 @@ public enum PineTheme {
             border-radius: 4px;
         }
         levelbar block.filled {
-            background: #0088FF;
+            background: #7c6cf0;
             border-radius: 4px;
             border: none;
         }
@@ -247,8 +248,8 @@ public enum PineTheme {
 
         /* Reset popover */
         popover, popover contents {
-            background: rgba(36,36,36,0.95);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(34,28,64,0.92);
+            border: 1px solid rgba(255,255,255,0.12);
             border-radius: 16px;
             box-shadow: 0 3px 8px 1px rgba(0,0,0,0.08),
                         0 10px 30px rgba(0,0,0,0.12);
@@ -269,7 +270,7 @@ public enum PineTheme {
             color: #dedede;
         }
         calendar day:selected {
-            background: #0088FF;
+            background: #7c6cf0;
             color: white;
             border-radius: 50%;
         }
@@ -298,19 +299,19 @@ public enum PineTheme {
             border: 1px solid transparent;
         }
         .pine-mail-row-selected {
-            background: rgba(0,136,255,0.15);
-            border: 1px solid rgba(0,136,255,0.08);
+            background: rgba(124,108,240,0.15);
+            border: 1px solid rgba(124,108,240,0.08);
         }
 
         /* Suggested / Destructive action buttons */
         button.suggested-action {
-            background: #0088FF;
+            background: #7c6cf0;
             color: white;
             border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,136,255,0.2);
+            box-shadow: 0 2px 8px rgba(124,108,240,0.2);
         }
         button.suggested-action:hover {
-            box-shadow: 0 4px 16px rgba(0,136,255,0.3);
+            box-shadow: 0 4px 16px rgba(124,108,240,0.3);
         }
         button.destructive-action {
             background: #ED5F5D;
@@ -321,12 +322,12 @@ public enum PineTheme {
 
         /* Reset link button */
         linkbutton {
-            color: #3484e2;
+            color: #7c6cf0;
         }
 
         /* Spinner */
         spinner {
-            color: #0088FF;
+            color: #7c6cf0;
         }
 
         /* ── Global transitions ── */
@@ -355,7 +356,7 @@ public enum PineTheme {
         .pine-fg-secondary { color: #afafaf; }
         .pine-fg-tertiary { color: #999999; }
         .pine-fg-quaternary { color: rgba(222,222,222,0.2); }
-        .pine-fg-accent { color: #0088FF; }
+        .pine-fg-accent { color: #7c6cf0; }
 
         /* ═══════════════════════════════════════════════════════════════
            Liquid Glass Surfaces
@@ -364,7 +365,7 @@ public enum PineTheme {
         /* ── Sidebar — translucent glass panel ── */
         /* sidebar_bg: rgba(#282828, 0.85), border: rgba(white, 0.12) */
         .pine-sidebar {
-            background: rgba(40,40,40,0.85);
+            background: rgba(0,0,0,0.16);
             border-right: 1px solid rgba(255,255,255,0.12);
             padding-top: 8px;
         }
@@ -394,10 +395,10 @@ public enum PineTheme {
             border: 1px solid transparent;
         }
 
-        /* selected_bg: rgba(#0088FF, 0.15), border: rgba(#0088FF, 0.1) */
+        /* selected_bg: rgba(#7c6cf0, 0.15), border: rgba(#7c6cf0, 0.1) */
         .pine-sidebar-item-active {
-            background: rgba(0,136,255,0.15);
-            border: 1px solid rgba(0,136,255,0.1);
+            background: rgba(124,108,240,0.15);
+            border: 1px solid rgba(124,108,240,0.1);
             /* $shadow_3: 0 1px 1px 0 rgba(black,0.03), 0 1px 2px 0 rgba(black,0.01) */
             box-shadow: 0 1px 1px 0 rgba(0,0,0,0.03),
                         0 1px 2px 0 rgba(0,0,0,0.01);
@@ -420,7 +421,7 @@ public enum PineTheme {
         /* border: rgba(white, 0.12) */
         /* $shadow_1: 0 1px 1px 0 rgba(black,0.12), 0 1px 2px 0 rgba(black,0.06) */
         .pine-toolbar {
-            background: rgba(30,30,30,0.85);
+            background: rgba(255,255,255,0.04);
             border-bottom: 1px solid rgba(255,255,255,0.12);
             min-height: 50px;
             box-shadow: 0 1px 1px 0 rgba(0,0,0,0.12),
@@ -431,7 +432,7 @@ public enum PineTheme {
         /* base_color: #242424 at 0.85 opacity */
         .pine-status-bar {
             padding: 3px 16px;
-            background: rgba(36,36,36,0.85);
+            background: rgba(26,22,50,0.6);
             border-top: 1px solid rgba(255,255,255,0.08);
             min-height: 22px;
         }
@@ -559,12 +560,12 @@ public enum PineTheme {
             transition: all 100ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
-        /* suggested: accent #0088FF, pill shape */
+        /* suggested: accent #7c6cf0, pill shape */
         .pine-btn-glass-prominent {
             border-radius: 9999px;
-            background: #0088FF;
+            background: #7c6cf0;
             border: none;
-            box-shadow: 0 2px 8px rgba(0,136,255,0.25),
+            box-shadow: 0 2px 8px rgba(124,108,240,0.25),
                         inset 0 1px 0 rgba(255,255,255,0.2);
             color: white;
             padding: 6px 16px;
@@ -572,19 +573,19 @@ public enum PineTheme {
         }
 
         .pine-btn-glass-prominent:hover {
-            background: #0088FF;
-            box-shadow: 0 4px 16px rgba(0,136,255,0.35),
+            background: #7c6cf0;
+            box-shadow: 0 4px 16px rgba(124,108,240,0.35),
                         inset 0 1px 0 rgba(255,255,255,0.25);
             transition: all 100ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         /* ── Suggested/destructive action buttons (Adwaita overrides) ── */
-        /* $circular_radius pill, accent #0088FF, destructive #ED5F5D */
+        /* $circular_radius pill, accent #7c6cf0, destructive #ED5F5D */
         .suggested-action {
-            background: #0088FF;
+            background: #7c6cf0;
             color: white;
             border-radius: 9999px;
-            box-shadow: 0 2px 8px rgba(0,136,255,0.2);
+            box-shadow: 0 2px 8px rgba(124,108,240,0.2);
             transition: all 100ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
@@ -615,9 +616,9 @@ public enum PineTheme {
         }
 
         /* ── Level bar (Gauge) ── */
-        /* accent: #0088FF */
+        /* accent: #7c6cf0 */
         levelbar block.filled {
-            background: #0088FF;
+            background: #7c6cf0;
             border-radius: 9999px;
         }
 
@@ -662,12 +663,12 @@ public enum PineTheme {
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
 
-        /* pine-glass-tinted: rgba(#0088FF, 0.1), border rgba(#0088FF, 0.12) */
+        /* pine-glass-tinted: rgba(#7c6cf0, 0.1), border rgba(#7c6cf0, 0.12) */
         .pine-glass-tinted {
-            background: rgba(0,136,255,0.1);
-            border: 1px solid rgba(0,136,255,0.12);
+            background: rgba(124,108,240,0.1);
+            border: 1px solid rgba(124,108,240,0.12);
             border-radius: 16px;
-            box-shadow: 0 4px 16px rgba(0,136,255,0.08),
+            box-shadow: 0 4px 16px rgba(124,108,240,0.08),
                         inset 0 1px 0 rgba(255,255,255,0.1);
         }
 
@@ -700,9 +701,9 @@ public enum PineTheme {
             transition: all 150ms cubic-bezier(0.0, 0.0, 0.2, 1);
         }
 
-        /* checked track: accent #0088FF */
+        /* checked track: accent #7c6cf0 */
         switch:checked {
-            background: #0088FF;
+            background: #7c6cf0;
         }
 
         /* thumb: white, $circular_radius, $shadow_5 */
@@ -735,9 +736,9 @@ public enum PineTheme {
             transition: all 150ms cubic-bezier(0.0, 0.0, 0.2, 1);
         }
 
-        /* focus: inset ring rgba(#0088FF, 0.75) — 2px inset box-shadow */
+        /* focus: inset ring rgba(#7c6cf0, 0.75) — 2px inset box-shadow */
         entry:focus {
-            box-shadow: inset 0 0 0 2px rgba(0,136,255,0.75);
+            box-shadow: inset 0 0 0 2px rgba(124,108,240,0.75);
             background: rgba(255,255,255,0.08);
         }
 
@@ -764,10 +765,10 @@ public enum PineTheme {
             transition: all 150ms cubic-bezier(0.0, 0.0, 0.2, 1);
         }
 
-        /* highlight/fill: accent #0088FF, $circular_radius */
+        /* highlight/fill: accent #7c6cf0, $circular_radius */
         scale highlight {
             border-radius: 9999px;
-            background: #0088FF;
+            background: #7c6cf0;
         }
 
         /* thumb: white, $circular_radius, min-width: 24px, min-height: 26px */
@@ -795,7 +796,7 @@ public enum PineTheme {
         /* shadow: 0 3px 8px 1px rgba(black,0.08), 0 10px 30px rgba(black,0.12) */
         popover contents {
             border-radius: 16px;
-            background: rgba(36,36,36,0.92);
+            background: rgba(34,28,64,0.92);
             border: 1px solid rgba(255,255,255,0.1);
             box-shadow: 0 3px 8px 1px rgba(0,0,0,0.08),
                         0 10px 30px rgba(0,0,0,0.12);
@@ -807,7 +808,7 @@ public enum PineTheme {
         /* $menuitem_size: 32px */
         menu {
             border-radius: 14px;
-            background: rgba(51,51,51,0.92);
+            background: rgba(34,28,64,0.92);
             border: 1px solid rgba(255,255,255,0.1);
             box-shadow: 0 3px 8px 1px rgba(0,0,0,0.08),
                         0 10px 30px rgba(0,0,0,0.12);
@@ -841,7 +842,7 @@ public enum PineTheme {
         }
 
         /* ── Progress bar — glass track ── */
-        /* track: rgba(black, 0.2) per scale trough convention, fill: #0088FF */
+        /* track: rgba(black, 0.2) per scale trough convention, fill: #7c6cf0 */
         progressbar trough {
             border-radius: 9999px;
             background: rgba(0,0,0,0.2);
@@ -850,12 +851,12 @@ public enum PineTheme {
 
         progressbar progress {
             border-radius: 9999px;
-            background: #0088FF;
+            background: #7c6cf0;
         }
 
         /* ── Spinner ── */
         spinner {
-            color: #0088FF;
+            color: #7c6cf0;
         }
 
         /* ── Calendar — glass date picker ── */
@@ -871,7 +872,7 @@ public enum PineTheme {
         }
 
         calendar day:selected {
-            background: #0088FF;
+            background: #7c6cf0;
             color: white;
         }
 
@@ -879,7 +880,7 @@ public enum PineTheme {
         /* $wm_radius: 26px (NOT 12px!) */
         /* $wm_shadow: 0 0 0 2px rgba(black,0.1), 0 0 0 1px rgba(black,0.75) */
         window {
-            border-radius: 26px;
+            border-radius: 14px;
         }
 
         /* ── Dialog / Modal ── */
